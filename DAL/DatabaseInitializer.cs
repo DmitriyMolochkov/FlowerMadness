@@ -146,7 +146,7 @@ namespace DAL
                 Order ordr_1 = new Order
                 {
                     Discount = 500,
-                    Cashier = await _context.Users.FirstAsync(),
+                    //Cashier = await _context.Users.FirstAsync(),
                     Customer = cust_1,
                     DateCreated = DateTime.UtcNow,
                     DateModified = DateTime.UtcNow,
@@ -159,7 +159,7 @@ namespace DAL
 
                 Order ordr_2 = new Order
                 {
-                    Cashier = await _context.Users.FirstAsync(),
+                    //Cashier = await _context.Users.FirstAsync(),
                     Customer = cust_2,
                     DateCreated = DateTime.UtcNow,
                     DateModified = DateTime.UtcNow,

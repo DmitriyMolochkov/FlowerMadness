@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace FlowerMadness.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/Registration")]
     public class CustomerController : ControllerBase
     {
         private readonly IMapper _mapper;

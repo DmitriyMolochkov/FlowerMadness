@@ -37,7 +37,6 @@ namespace FlowerMadness.Controllers
             _authorizationService = authorizationService;
         }
 
-
         [HttpGet]
         [ProducesResponseType(200, Type = typeof(List<ProductViewModel>))]
         public async Task<IActionResult> Get()

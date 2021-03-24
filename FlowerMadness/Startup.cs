@@ -125,10 +125,10 @@ namespace FlowerMadness
             services.AddControllersWithViews();
 
             //In production, the Angular files will be served from this directory
-            services.AddSpaStaticFiles(configuration =>
-            {
-                configuration.RootPath = "ClientApp/dist";
-            });
+            //services.AddSpaStaticFiles(configuration =>
+            //{
+            //    configuration.RootPath = "ClientApp/dist";
+            //});
 
             services.AddSwaggerGen(c =>
             {
@@ -173,6 +173,8 @@ namespace FlowerMadness
 
             // DB Creation and Seeding
             services.AddTransient<IDatabaseInitializer, DatabaseInitializer>();
+
+            services.AddSignalR();
         }
 
 
@@ -193,6 +195,8 @@ namespace FlowerMadness
                 app.UseHsts();
             }
 
+            app.UseDefaultFiles();
+            
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             if (!env.IsDevelopment())
@@ -223,6 +227,7 @@ namespace FlowerMadness
                 endpoints.MapControllerRoute(
                     name: "default",
                     pattern: "{controller}/{action=Index}/{id?}");
+                endpoints.MapHub<ChatHub>("/chat");
             });
 
             app.UseSpa(spa =>

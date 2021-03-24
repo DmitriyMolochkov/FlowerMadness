@@ -19,7 +19,7 @@ namespace FlowerMadness
         {
             IdentityModelEventSource.ShowPII = true;
             var host = CreateWebHostBuilder(args).Build();
-            
+
 
             //Seed database
             //using (var scope = host.Services.CreateScope())
