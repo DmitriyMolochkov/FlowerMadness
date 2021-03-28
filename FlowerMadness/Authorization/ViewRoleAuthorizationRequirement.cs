@@ -1,9 +1,4 @@
-﻿
-
-
-
-
-using DAL.Core;
+﻿using DAL.Core;
 using Microsoft.AspNetCore.Authorization;
 using System.Collections.Generic;
 using System.Text;
@@ -15,8 +10,6 @@ namespace FlowerMadness.Authorization
     {
 
     }
-
-
 
     public class ViewRoleAuthorizationHandler : AuthorizationHandler<ViewRoleAuthorizationRequirement, string>
     {

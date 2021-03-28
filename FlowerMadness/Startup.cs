@@ -20,6 +20,11 @@ using Microsoft.OpenApi.Models;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
+using System.Threading.Tasks;
+using IdentityModel;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.SignalR;
+using Microsoft.IdentityModel.Tokens;
 using AppPermissions = DAL.Core.ApplicationPermissions;
 
 namespace FlowerMadness
@@ -66,7 +71,7 @@ namespace FlowerMadness
             });
 
             // Adds IdentityServer.
-            services.AddIdentityServer(/*y => y.EmitStaticAudienceClaim = false*/)
+            services.AddIdentityServer( /*y => y.EmitStaticAudienceClaim = false*/)
                 // The AddDeveloperSigningCredential extension creates temporary key material for signing tokens.
                 // This might be useful to get started, but needs to be replaced by some persistent key material for production scenarios.
                 // See http://docs.identityserver.io/en/release/topics/crypto.html#refcrypto for more information.
@@ -84,19 +89,39 @@ namespace FlowerMadness
 
 
 
-            var applicationUrl = Configuration["ApplicationUrl"].TrimEnd('/');
+            //var applicationUrl = Configuration["ApplicationUrl"].TrimEnd('/');
 
             JwtSecurityTokenHandler.DefaultMapInboundClaims = false;
 
             services.AddAuthentication(IdentityServerAuthenticationDefaults.AuthenticationScheme)
                 .AddIdentityServerAuthentication(options =>
                 {
-                    options.Authority = applicationUrl;
+                    //options.Events = new JwtBearerEvents
+                    //{
+                    //    OnMessageReceived = context =>
+                    //    {
+                    //        var accessToken = context.Request.Query["access_token"];
+
+                    //        // если запрос направлен хабу
+                    //        var path = context.HttpContext.Request.Path;
+                    //        if (!string.IsNullOrEmpty(accessToken)
+                    //            //&& (path.StartsWithSegments("/chat"))
+                    //        )
+                    //        {
+                    //            // получаем токен из строки запроса
+                    //            context.Token = accessToken;
+                    //        }
+                    //        return Task.CompletedTask;
+                    //    }
+                    //};
+                    
+                    //options.Authority = applicationUrl;
                     options.SupportedTokens = SupportedTokens.Jwt;
                     options.RequireHttpsMetadata = false; // Note: Set to true in production
                     options.ApiName = IdentityServerConfig.ApiName;
                     options.SaveToken = true;
                     options.Authority = "https://localhost:44350";
+                    
                 });
 
 
@@ -175,9 +200,9 @@ namespace FlowerMadness
             services.AddTransient<IDatabaseInitializer, DatabaseInitializer>();
 
             services.AddSignalR();
+            services.AddSingleton<IUserIdProvider, CustomUserIdProvider>();
         }
-
-
+        
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory)
         {
@@ -196,7 +221,7 @@ namespace FlowerMadness
             }
 
             app.UseDefaultFiles();
-            
+
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             if (!env.IsDevelopment())
@@ -210,8 +235,22 @@ namespace FlowerMadness
                 .AllowAnyHeader()
                 .AllowAnyMethod());
             
-            app.UseIdentityServer();
+            // батин кастыль для потомков
+            app.Use(async (context, next) =>
+            {
+                // если в строке запроса есть токен
+                var accessToken = context.Request.Query["access_token"];
+                if (!string.IsNullOrEmpty(accessToken))
+                {
+                    // получаем токен из строки запроса
+                    context.Request.Headers.Add("Authorization", new[] { $"Bearer {accessToken}" });
+                }
+
+                await next.Invoke();
+            });
+
             app.UseAuthorization();
+            app.UseIdentityServer();
 
             app.UseSwagger();
             app.UseSwaggerUI(c =>

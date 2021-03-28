@@ -15,32 +15,6 @@ namespace FlowerMadness
         public const string QuickAppClientID = "quickapp_spa";
         public const string SwaggerClientID = "swaggerui";
 
-        //public static IEnumerable<ApiScope> GetApiScopes()
-        //{
-        //    return new List<ApiScope>
-        //    {
-        //        new ApiScope(name: "read",   displayName: "Read your data."),
-        //        new ApiScope(name: "write",  displayName: "Write your data."),
-        //        new ApiScope(name: "delete", displayName: "Delete your data.")
-        //    };
-        //}
-
-        //public static IEnumerable<ApiResource> GetApiResources()
-        //{
-        //    return new List<ApiResource>
-        //    {
-        //        new ApiResource("invoices", "Invoice API")
-        //        {
-        //            Scopes = { "invoice.read", "invoice.pay", "manage" }
-        //        },
-
-        //        new ApiResource("customers", "Customer API")
-        //        {
-        //            Scopes = { "customer.read", "customer.contact", "manage" }
-        //        }
-        //    };
-        //}
-        
         // Identity resources (used by UserInfo endpoint).
         public static IEnumerable<IdentityResource> GetIdentityResources()
         {
@@ -120,7 +94,6 @@ namespace FlowerMadness
                     //AbsoluteRefreshTokenLifetime = 7200,
                     //SlidingRefreshTokenLifetime = 900,
                 },
-
                 new Client
                 {
                     ClientId = SwaggerClientID,

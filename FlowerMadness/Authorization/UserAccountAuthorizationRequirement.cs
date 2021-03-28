@@ -1,9 +1,4 @@
-﻿
-
-
-
-
-using DAL.Core;
+﻿using DAL.Core;
 using FlowerMadness.Helpers;
 using Microsoft.AspNetCore.Authorization;
 using System.Collections.Generic;
@@ -20,12 +15,9 @@ namespace FlowerMadness.Authorization
             this.OperationName = operationName;
         }
 
-
         public string OperationName { get; private set; }
     }
-
-
-
+    
     public class ViewUserAuthorizationHandler : AuthorizationHandler<UserAccountAuthorizationRequirement, string>
     {
         protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, UserAccountAuthorizationRequirement requirement, string targetUserId)
@@ -49,8 +41,6 @@ namespace FlowerMadness.Authorization
         }
     }
 
-
-
     public class ManageUserAuthorizationHandler : AuthorizationHandler<UserAccountAuthorizationRequirement, string>
     {
         protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, UserAccountAuthorizationRequirement requirement, string targetUserId)
@@ -66,8 +56,7 @@ namespace FlowerMadness.Authorization
 
             return Task.CompletedTask;
         }
-
-
+        
         private bool GetIsSameUser(ClaimsPrincipal user, string targetUserId)
         {
             if (string.IsNullOrWhiteSpace(targetUserId))

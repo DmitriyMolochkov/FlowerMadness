@@ -2,58 +2,121 @@
 <html>
 <head>
     <meta charset="utf-8" />
-    <title>SignalR Chat - Metanit.com</title>
+    <title>SignalR Chat</title>
 </head>
 <body>
     <div id="loginBlock">
         Введите логин:<br />
         <input id="userName" type="text" />
+        <input id="userPassword" type="text" />
         <input id="loginBtn" type="button" value="Войти" />
     </div><br />
 
-    <div id="header"></div><br />
-
-    <div id="inputForm">
-        <input type="text" id="message" />
-        <input type="button" id="sendBtn" value="Отправить" />
+    <div id="inputManagerForm" hidden disabled>
+        <input type="text" id="messageManager" placeholder="Введите сообщение" />
+        <input type="text" id="receiver" placeholder="Введите получателя" />
+        <input type="button" id="sendManagerBtn" value="Отправить" />
+    </div>
+    <div id="inputUserForm" hidden disabled>
+        <input type="text" id="messageUser" placeholder="Введите сообщение" />
+        <input type="button" id="sendUserBtn" value="Отправить" />
     </div>
     <div id="chatroom"></div>
-    <script src="js/signalr/dist/browser/signalr.min.js"></script>
-    <script>
-        const hubConnection = new signalR.HubConnectionBuilder()
-            .withUrl("/chat")
-            .build();
 
-        let userName = '';
-        // получение сообщения от сервера
-        hubConnection.on('Send', function (message, userName) {
+    <script src="https://unpkg.com/@microsoft/signalr@3.1.0/dist/browser/signalr.min.js"></script>
+    <script>
+        let token;
+        const hubConnection = new signalR.HubConnectionBuilder()
+            .withUrl("/chat", { accessTokenFactory: () => token })
+            .build();
+        hubConnection.on("Receive", function (message, userName, to, time) {
+
+            // создаем элемент <b> для имени пользователя
+            let timeElem = document.createElement("b");
+            timeElem.appendChild(document.createTextNode(time + " "));
 
             // создаем элемент <b> для имени пользователя
             let userNameElem = document.createElement("b");
-            userNameElem.appendChild(document.createTextNode(userName + ': '));
+            userNameElem.appendChild(document.createTextNode("от " + userName));
+
+            // создаем элемент <b> для имени пользователя
+            let toElem = document.createElement("b");
+            toElem.appendChild(document.createTextNode(" для " + to + ": "));
 
             // создает элемент <p> для сообщения пользователя
             let elem = document.createElement("p");
+            elem.appendChild(timeElem);
             elem.appendChild(userNameElem);
+            elem.appendChild(toElem);
             elem.appendChild(document.createTextNode(message));
 
             var firstElem = document.getElementById("chatroom").firstChild;
             document.getElementById("chatroom").insertBefore(elem, firstElem);
+        });
+        hubConnection.on("Notify", function (message, isManager) {
 
+            // создает элемент <p> для сообщения пользователя
+            let elem = document.createElement("p");
+            elem.appendChild(document.createTextNode(message));
+
+            if (!isManager) {
+                document.getElementById("inputUserForm").disabled = false;
+                document.getElementById("inputUserForm").hidden = false;
+            }
+            else {
+                document.getElementById("inputManagerForm").disabled = false;
+                document.getElementById("inputManagerForm").hidden = false;
+            }
+
+            var firstElem = document.getElementById("chatroom").firstChild;
+            document.getElementById("chatroom").insertBefore(elem, firstElem);
         });
 
-        // установка имени пользователя
+        // аутентификация
         document.getElementById("loginBtn").addEventListener("click", function (e) {
-            userName = document.getElementById("userName").value;
-            document.getElementById("header").innerHTML = '<h3>Welcome ' + userName + '</h3>';
+
+            var request = new XMLHttpRequest();
+            request.open("POST", "https://localhost:44350/connect/token", true);
+            request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+            request.addEventListener("load", function () {
+                if (request.status < 400) { // если запрос успешный
+
+                    let data = JSON.parse(request.response);
+                    token = data.access_token;
+
+                    document.getElementById("sendManagerBtn").disabled = false;
+
+                    hubConnection.start()       // начинаем соединение с хабом
+                        .catch(err => {
+                            console.error(err.toString());
+                            document.getElementById("loginBtn").disabled = true;
+                            document.getElementById("sendManagerBtn").disabled = true;
+                        });
+                }
+                else {
+                    console.log("Status", request.status);
+                    console.log(request.responseText);
+                }
+            });
+            // отправляем запрос на аутентификацию
+            request.send(
+                "grant_type=password" +
+                "&client_id=quickapp_spa" +
+                "&scope=quickapp_api" +
+                "&client_secret=not_used" +
+                "&username=" + document.getElementById("userName").value +
+                "&password=" + document.getElementById("userPassword").value);
         });
         // отправка сообщения на сервер
-        document.getElementById("sendBtn").addEventListener("click", function (e) {
-            let message = document.getElementById("message").value;
-            hubConnection.invoke("Send", message, userName);
+        document.getElementById("sendManagerBtn").addEventListener("click", function (e) {
+            let message = document.getElementById("messageManager").value;
+            let to = document.getElementById("receiver").value;
+            hubConnection.invoke("SendFromManager", message, to);
         });
-
-        hubConnection.start();
+        document.getElementById("sendUserBtn").addEventListener("click", function (e) {
+            let message = document.getElementById("messageUser").value;
+            hubConnection.invoke("SendFromUser", message);
+        })
     </script>
 </body>
 </html>

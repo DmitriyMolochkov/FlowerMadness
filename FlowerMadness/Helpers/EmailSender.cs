@@ -1,9 +1,4 @@
-﻿
-
-
-
-
-using MailKit.Net.Smtp;
+﻿using MailKit.Net.Smtp;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MimeKit;
@@ -21,8 +16,6 @@ namespace FlowerMadness.Helpers
         Task<(bool success, string errorMsg)> SendEmailAsync(string senderName, string senderEmail, string recepientName, string recepientEmail, string subject, string body, SmtpConfig config = null, bool isHtml = true);
     }
 
-
-
     public class EmailSender : IEmailSender
     {
         readonly SmtpConfig _config;
@@ -34,7 +27,6 @@ namespace FlowerMadness.Helpers
             _config = config.Value.SmtpConfig;
             _logger = logger;
         }
-
 
         public async Task<(bool success, string errorMsg)> SendEmailAsync(
             string recepientName,
@@ -49,8 +41,6 @@ namespace FlowerMadness.Helpers
 
             return await SendEmailAsync(from, new MailboxAddress[] { to }, subject, body, config, isHtml);
         }
-
-
 
         public async Task<(bool success, string errorMsg)> SendEmailAsync(
             string senderName,
@@ -67,9 +57,7 @@ namespace FlowerMadness.Helpers
 
             return await SendEmailAsync(from, new MailboxAddress[] { to }, subject, body, config, isHtml);
         }
-
-
-
+        
         public async Task<(bool success, string errorMsg)> SendEmailAsync(
             MailboxAddress sender,
             MailboxAddress[] recepients,

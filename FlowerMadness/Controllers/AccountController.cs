@@ -14,6 +14,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.IdentityModel.JsonWebTokens;
 
 namespace FlowerMadness.Controllers
 {
@@ -37,14 +38,12 @@ namespace FlowerMadness.Controllers
             _logger = logger;
         }
 
-
         [HttpGet("users/me")]
         [ProducesResponseType(200, Type = typeof(UserViewModel))]
         public async Task<IActionResult> GetCurrentUser()
         {
             return await GetUserById(Utilities.GetUserId(this.User));
         }
-
 
         [HttpGet("users/{id}", Name = GetUserByIdActionName)]
         [ProducesResponseType(200, Type = typeof(UserViewModel))]
@@ -54,7 +53,7 @@ namespace FlowerMadness.Controllers
         {
             if (!(await _authorizationService.AuthorizeAsync(this.User, id, AccountManagementOperations.Read)).Succeeded)
                 return new ChallengeResult();
-
+            
 
             UserViewModel userVM = await GetUserViewModelHelper(id);
 
@@ -63,7 +62,6 @@ namespace FlowerMadness.Controllers
             else
                 return NotFound(id);
         }
-
 
         [HttpGet("users/username/{userName}")]
         [ProducesResponseType(200, Type = typeof(UserViewModel))]
@@ -82,7 +80,6 @@ namespace FlowerMadness.Controllers
             return await GetUserById(appUser.Id);
         }
 
-
         [HttpGet("users")]
         [Authorize(Authorization.Policies.ViewAllUsersPolicy)]
         [ProducesResponseType(200, Type = typeof(List<UserViewModel>))]
@@ -90,7 +87,6 @@ namespace FlowerMadness.Controllers
         {
             return await GetUsers(-1, -1);
         }
-
 
         [HttpGet("users/{pageNumber:int}/{pageSize:int}")]
         [Authorize(Authorization.Policies.ViewAllUsersPolicy)]
@@ -112,7 +108,6 @@ namespace FlowerMadness.Controllers
             return Ok(usersVM);
         }
 
-
         [HttpPut("users/me")]
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
@@ -121,7 +116,6 @@ namespace FlowerMadness.Controllers
         {
             return await UpdateUser(Utilities.GetUserId(this.User), user);
         }
-
 
         [HttpPut("users/{id}")]
         [ProducesResponseType(204)]
@@ -198,7 +192,6 @@ namespace FlowerMadness.Controllers
             return BadRequest(ModelState);
         }
 
-
         [HttpPatch("users/me")]
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
@@ -206,7 +199,6 @@ namespace FlowerMadness.Controllers
         {
             return await UpdateUser(Utilities.GetUserId(this.User), patch);
         }
-
 
         [HttpPatch("users/{id}")]
         [ProducesResponseType(204)]
@@ -250,7 +242,6 @@ namespace FlowerMadness.Controllers
             return BadRequest(ModelState);
         }
 
-
         [HttpPost("users")]
         [Authorize(Authorization.Policies.ManageAllUsersPolicy)]
         [ProducesResponseType(201, Type = typeof(UserViewModel))]
@@ -283,7 +274,6 @@ namespace FlowerMadness.Controllers
             return BadRequest(ModelState);
         }
 
-
         [HttpDelete("users/{id}")]
         [ProducesResponseType(200, Type = typeof(UserViewModel))]
         [ProducesResponseType(400)]
@@ -314,7 +304,6 @@ namespace FlowerMadness.Controllers
             return Ok(userVM);
         }
 
-
         [HttpPut("users/unblock/{id}")]
         [Authorize(Authorization.Policies.ManageAllUsersPolicy)]
         [ProducesResponseType(204)]
@@ -335,7 +324,6 @@ namespace FlowerMadness.Controllers
             return NoContent();
         }
 
-
         [HttpGet("users/me/preferences")]
         [ProducesResponseType(200, Type = typeof(string))]
         public async Task<IActionResult> UserPreferences()
@@ -345,7 +333,6 @@ namespace FlowerMadness.Controllers
 
             return Ok(appUser.Configuration);
         }
-
 
         [HttpPut("users/me/preferences")]
         [ProducesResponseType(204)]
@@ -363,10 +350,6 @@ namespace FlowerMadness.Controllers
             return NoContent();
         }
 
-
-
-
-
         [HttpGet("roles/{id}", Name = GetRoleByIdActionName)]
         [ProducesResponseType(200, Type = typeof(RoleViewModel))]
         [ProducesResponseType(403)]
@@ -383,7 +366,6 @@ namespace FlowerMadness.Controllers
 
             return await GetRoleByName(appRole.Name);
         }
-
 
         [HttpGet("roles/name/{name}")]
         [ProducesResponseType(200, Type = typeof(RoleViewModel))]
@@ -403,7 +385,6 @@ namespace FlowerMadness.Controllers
             return Ok(roleVM);
         }
 
-
         [HttpGet("roles")]
         [Authorize(Authorization.Policies.ViewAllRolesPolicy)]
         [ProducesResponseType(200, Type = typeof(List<RoleViewModel>))]
@@ -411,7 +392,6 @@ namespace FlowerMadness.Controllers
         {
             return await GetRoles(-1, -1);
         }
-
 
         [HttpGet("roles/{pageNumber:int}/{pageSize:int}")]
         [Authorize(Authorization.Policies.ViewAllRolesPolicy)]
@@ -421,7 +401,6 @@ namespace FlowerMadness.Controllers
             var roles = await _accountManager.GetRolesLoadRelatedAsync(pageNumber, pageSize);
             return Ok(_mapper.Map<List<RoleViewModel>>(roles));
         }
-
 
         [HttpPut("roles/{id}")]
         [Authorize(Authorization.Policies.ManageAllRolesPolicy)]
@@ -459,7 +438,6 @@ namespace FlowerMadness.Controllers
             return BadRequest(ModelState);
         }
 
-
         [HttpPost("roles")]
         [Authorize(Authorization.Policies.ManageAllRolesPolicy)]
         [ProducesResponseType(201, Type = typeof(RoleViewModel))]
@@ -487,7 +465,6 @@ namespace FlowerMadness.Controllers
             return BadRequest(ModelState);
         }
 
-
         [HttpDelete("roles/{id}")]
         [Authorize(Authorization.Policies.ManageAllRolesPolicy)]
         [ProducesResponseType(200, Type = typeof(RoleViewModel))]
@@ -514,7 +491,6 @@ namespace FlowerMadness.Controllers
             return Ok(roleVM);
         }
 
-
         [HttpGet("permissions")]
         [Authorize(Authorization.Policies.ViewAllRolesPolicy)]
         [ProducesResponseType(200, Type = typeof(List<PermissionViewModel>))]
@@ -522,8 +498,6 @@ namespace FlowerMadness.Controllers
         {
             return Ok(_mapper.Map<List<PermissionViewModel>>(ApplicationPermissions.AllPermissions));
         }
-
-
 
         private async Task<UserViewModel> GetUserViewModelHelper(string userId)
         {
@@ -537,7 +511,6 @@ namespace FlowerMadness.Controllers
             return userVM;
         }
 
-
         private async Task<RoleViewModel> GetRoleViewModelHelper(string roleName)
         {
             var role = await _accountManager.GetRoleLoadRelatedAsync(roleName);
@@ -548,7 +521,6 @@ namespace FlowerMadness.Controllers
             return null;
         }
 
-
         private void AddError(IEnumerable<string> errors, string key = "")
         {
             foreach (var error in errors)
@@ -556,11 +528,9 @@ namespace FlowerMadness.Controllers
                 AddError(error, key);
             }
         }
-
         private void AddError(string error, string key = "")
         {
             ModelState.AddModelError(key, error);
         }
-
     }
 }

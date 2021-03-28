@@ -1,9 +1,4 @@
-﻿
-
-
-
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -31,9 +26,7 @@ namespace FlowerMadness.Authorization
         /// <summary>Policy to allow assigning roles the user has access to (Requires new and current roles as parameter).</summary>
         public const string AssignAllowedRolesPolicy = "Assign Allowed Roles";
     }
-
-
-
+    
     /// <summary>
     /// Operation Policy to allow adding, viewing, updating and deleting general or specific user records.
     /// </summary>

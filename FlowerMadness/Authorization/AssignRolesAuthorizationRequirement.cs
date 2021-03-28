@@ -1,9 +1,4 @@
-﻿
-
-
-
-
-using DAL.Core;
+﻿using DAL.Core;
 using Microsoft.AspNetCore.Authorization;
 using System;
 using System.Linq;
@@ -16,8 +11,6 @@ namespace FlowerMadness.Authorization
     {
 
     }
-
-
 
     public class AssignRolesAuthorizationHandler : AuthorizationHandler<AssignRolesAuthorizationRequirement, (string[] newRoles, string[] currentRoles)>
     {

@@ -1,9 +1,4 @@
-﻿
-
-
-
-
-using Microsoft.AspNetCore.Hosting;
+﻿using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.FileProviders;
 using System;
 using System.IO;
@@ -22,7 +17,6 @@ namespace FlowerMadness.Helpers
             _hostingEnvironment = hostingEnvironment;
         }
 
-
         public static string GetTestEmail(string recepientName, DateTime testDate)
         {
             if (testEmailTemplate == null)
@@ -35,9 +29,6 @@ namespace FlowerMadness.Helpers
 
             return emailMessage;
         }
-
-
-
         public static string GetPlainTextTestEmail(DateTime date)
         {
             if (plainTextTestEmailTemplate == null)
@@ -49,10 +40,6 @@ namespace FlowerMadness.Helpers
 
             return emailMessage;
         }
-
-
-
-
         private static string ReadPhysicalFile(string path)
         {
             if (_hostingEnvironment == null)

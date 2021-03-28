@@ -1,9 +1,4 @@
-﻿
-
-
-
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -16,8 +11,6 @@ namespace FlowerMadness
         public SmtpConfig SmtpConfig { get; set; }
 
     }
-
-
 
     public class SmtpConfig
     {

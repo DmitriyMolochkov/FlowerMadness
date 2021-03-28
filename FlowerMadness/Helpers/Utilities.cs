@@ -1,9 +1,4 @@
-﻿
-
-
-
-
-using IdentityModel;
+﻿using IdentityModel;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -25,7 +20,6 @@ namespace FlowerMadness.Helpers
             _loggerFactory = loggerFactory;
         }
 
-
         public static ILogger CreateLogger<T>()
         {
             //Usage: Utilities.CreateLogger<SomeClass>().LogError(LoggingEvents.SomeEventId, ex, "An error occurred because of xyz");
@@ -38,8 +32,7 @@ namespace FlowerMadness.Helpers
 
             return _loggerFactory.CreateLogger<T>();
         }
-
-
+        
         public static void QuickLog(string text, string filename)
         {
             string dirPath = Path.GetDirectoryName(filename);
@@ -52,15 +45,11 @@ namespace FlowerMadness.Helpers
                 writer.WriteLine($"{DateTime.Now} - {text}");
             }
         }
-
-
-
+        
         public static string GetUserId(ClaimsPrincipal user)
         {
             return user.FindFirst(JwtClaimTypes.Subject)?.Value?.Trim();
         }
-
-
 
         public static string[] GetRoles(ClaimsPrincipal identity)
         {
