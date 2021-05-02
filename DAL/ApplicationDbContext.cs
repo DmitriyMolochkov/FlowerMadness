@@ -58,7 +58,7 @@ namespace DAL
             builder.Entity<Product>().HasIndex(p => p.Name);
             builder.Entity<Product>().Property(p => p.Description).HasMaxLength(500);
             builder.Entity<Product>().Property(p => p.Icon).IsUnicode(false).HasMaxLength(256);
-            builder.Entity<Product>().HasOne(p => p.Parent).WithMany(p => p.Children).OnDelete(DeleteBehavior.Restrict);
+            //builder.Entity<Product>().HasOne(p => p.Parent).WithMany(p => p.Children).OnDelete(DeleteBehavior.Restrict);
             builder.Entity<Product>().ToTable($"App{nameof(this.Products)}");
             builder.Entity<Product>().Property(p => p.BuyingPrice).HasColumnType(priceDecimalType);
             builder.Entity<Product>().Property(p => p.SellingPrice).HasColumnType(priceDecimalType);

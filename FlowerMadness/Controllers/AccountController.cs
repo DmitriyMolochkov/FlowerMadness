@@ -38,12 +38,12 @@ namespace FlowerMadness.Controllers
             _logger = logger;
         }
 
-        [HttpGet("users/me")]
-        [ProducesResponseType(200, Type = typeof(UserViewModel))]
-        public async Task<IActionResult> GetCurrentUser()
-        {
-            return await GetUserById(Utilities.GetUserId(this.User));
-        }
+        //[HttpGet("users/me")]
+        //[ProducesResponseType(200, Type = typeof(UserViewModel))]
+        //public async Task<IActionResult> GetCurrentUser()
+        //{
+        //    return await GetUserById(Utilities.GetUserId(this.User));
+        //}
 
         [HttpGet("users/{id}", Name = GetUserByIdActionName)]
         [ProducesResponseType(200, Type = typeof(UserViewModel))]
@@ -108,14 +108,14 @@ namespace FlowerMadness.Controllers
             return Ok(usersVM);
         }
 
-        [HttpPut("users/me")]
-        [ProducesResponseType(204)]
-        [ProducesResponseType(400)]
-        [ProducesResponseType(403)]
-        public async Task<IActionResult> UpdateCurrentUser([FromBody] UserEditViewModel user)
-        {
-            return await UpdateUser(Utilities.GetUserId(this.User), user);
-        }
+        //[HttpPut("users/me")]
+        //[ProducesResponseType(204)]
+        //[ProducesResponseType(400)]
+        //[ProducesResponseType(403)]
+        //public async Task<IActionResult> UpdateCurrentUser([FromBody] UserEditViewModel user)
+        //{
+        //    return await UpdateUser(Utilities.GetUserId(this.User), user);
+        //}
 
         [HttpPut("users/{id}")]
         [ProducesResponseType(204)]
@@ -192,13 +192,13 @@ namespace FlowerMadness.Controllers
             return BadRequest(ModelState);
         }
 
-        [HttpPatch("users/me")]
-        [ProducesResponseType(204)]
-        [ProducesResponseType(400)]
-        public async Task<IActionResult> UpdateCurrentUser([FromBody] JsonPatchDocument<UserPatchViewModel> patch)
-        {
-            return await UpdateUser(Utilities.GetUserId(this.User), patch);
-        }
+        //[HttpPatch("users/me")]
+        //[ProducesResponseType(204)]
+        //[ProducesResponseType(400)]
+        //public async Task<IActionResult> UpdateCurrentUser([FromBody] JsonPatchDocument<UserPatchViewModel> patch)
+        //{
+        //    return await UpdateUser(Utilities.GetUserId(this.User), patch);
+        //}
 
         [HttpPatch("users/{id}")]
         [ProducesResponseType(204)]
@@ -324,31 +324,31 @@ namespace FlowerMadness.Controllers
             return NoContent();
         }
 
-        [HttpGet("users/me/preferences")]
-        [ProducesResponseType(200, Type = typeof(string))]
-        public async Task<IActionResult> UserPreferences()
-        {
-            var userId = Utilities.GetUserId(this.User);
-            ApplicationUser appUser = await _accountManager.GetUserByIdAsync(userId);
+        //[HttpGet("users/me/preferences")]
+        //[ProducesResponseType(200, Type = typeof(string))]
+        //public async Task<IActionResult> UserPreferences()
+        //{
+        //    var userId = Utilities.GetUserId(this.User);
+        //    ApplicationUser appUser = await _accountManager.GetUserByIdAsync(userId);
 
-            return Ok(appUser.Configuration);
-        }
+        //    return Ok(appUser.Configuration);
+        //}
 
-        [HttpPut("users/me/preferences")]
-        [ProducesResponseType(204)]
-        public async Task<IActionResult> UserPreferences([FromBody] string data)
-        {
-            var userId = Utilities.GetUserId(this.User);
-            ApplicationUser appUser = await _accountManager.GetUserByIdAsync(userId);
+        //[HttpPut("users/me/preferences")]
+        //[ProducesResponseType(204)]
+        //public async Task<IActionResult> UserPreferences([FromBody] string data)
+        //{
+        //    var userId = Utilities.GetUserId(this.User);
+        //    ApplicationUser appUser = await _accountManager.GetUserByIdAsync(userId);
 
-            appUser.Configuration = data;
+        //    appUser.Configuration = data;
 
-            var result = await _accountManager.UpdateUserAsync(appUser);
-            if (!result.Succeeded)
-                throw new Exception("The following errors occurred whilst updating User Configurations: " + string.Join(", ", result.Errors));
+        //    var result = await _accountManager.UpdateUserAsync(appUser);
+        //    if (!result.Succeeded)
+        //        throw new Exception("The following errors occurred whilst updating User Configurations: " + string.Join(", ", result.Errors));
 
-            return NoContent();
-        }
+        //    return NoContent();
+        //}
 
         [HttpGet("roles/{id}", Name = GetRoleByIdActionName)]
         [ProducesResponseType(200, Type = typeof(RoleViewModel))]

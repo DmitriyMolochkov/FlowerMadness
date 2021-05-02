@@ -1,9 +1,4 @@
-﻿
-
-
-
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -18,7 +13,6 @@ namespace DAL.Models
         public DateTime DateCreated { get; set; }
         public DateTime DateModified { get; set; }
 
-
-        public ICollection<Product> Products { get; set; }
+        public ICollection<Product> Products { get; set; } = new HashSet<Product>();
     }
 }

@@ -1,9 +1,4 @@
-﻿
-
-
-
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -20,8 +15,9 @@ namespace DAL.Repositories.Interfaces
         void Update(TEntity entity);
         void UpdateRange(IEnumerable<TEntity> entities);
 
-        void Remove(TEntity entity);
-        void RemoveRange(IEnumerable<TEntity> entities);
+        void Delete(TEntity entity);
+        void DeleteRange(IEnumerable<TEntity> entities);
+        void Delete(int id);
 
         int Count();
 

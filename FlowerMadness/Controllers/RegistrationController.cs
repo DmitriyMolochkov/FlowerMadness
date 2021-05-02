@@ -6,8 +6,11 @@ using AutoMapper;
 using DAL.Core.Interfaces;
 using DAL.Models;
 using FlowerMadness.Authorization;
+using FlowerMadness.Helpers;
 using FlowerMadness.ViewModels;
+using IdentityServer4.AccessTokenValidation;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
@@ -20,7 +23,7 @@ namespace FlowerMadness.Controllers
         private readonly IAccountManager _accountManager;
         private readonly IAuthorizationService _authorizationService;
         private readonly ILogger<RegistrationController> _logger;
-        private const string GetUserByIdActionName = "GetUserById1";
+        private const string GetCurrentUserActionName = "GetCurrentUser";
         private const string GetRoleByIdActionName = "GetRoleById1";
 
         public RegistrationController(IMapper mapper, IAccountManager accountManager, IAuthorizationService authorizationService,
@@ -31,39 +34,17 @@ namespace FlowerMadness.Controllers
             _authorizationService = authorizationService;
             _logger = logger;
         }
-
-        [HttpGet("roles/{id}", Name = GetRoleByIdActionName)]
-        [ProducesResponseType(200, Type = typeof(RoleViewModel))]
-        [ProducesResponseType(403)]
-        [ProducesResponseType(404)]
-        public async Task<IActionResult> GetRoleById(string id)
-        {
-            var appRole = await _accountManager.GetRoleByIdAsync(id);
-
-            if (!(await _authorizationService.AuthorizeAsync(this.User, appRole?.Name ?? "", Authorization.Policies.ViewRoleByRoleNamePolicy)).Succeeded)
-                return new ChallengeResult();
-
-            if (appRole == null)
-                return NotFound(id);
-
-            return await GetRoleByName1(appRole.Name);
-        }
         
         [HttpPost("users")]
         [ProducesResponseType(201, Type = typeof(UserViewModel))]
         [ProducesResponseType(400)]
         [ProducesResponseType(403)]
-        public async Task<IActionResult> Register([FromBody] UserEditViewModel user)
+        public async Task<IActionResult> Register([FromBody] UserCreateModel user)
         {
-            //if (!(await _authorizationService.AuthorizeAsync(this.User, (user.Roles, new string[] { }), Authorization.Policies.AssignAllowedRolesPolicy)).Succeeded)
-            //    return new ChallengeResult();
-
-
             if (ModelState.IsValid)
             {
                 if (user == null)
                     return BadRequest($"{nameof(user)} cannot be null");
-
 
                 ApplicationUser appUser = _mapper.Map<ApplicationUser>(user);
 
@@ -71,7 +52,7 @@ namespace FlowerMadness.Controllers
                 if (result.Succeeded)
                 {
                     UserViewModel userVM = await GetUserViewModelHelper(appUser.Id);
-                    return CreatedAtAction(GetUserByIdActionName, new { id = userVM.Id }, userVM);
+                    return CreatedAtAction(GetCurrentUserActionName, userVM);
                 }
 
                 AddError(result.Errors);
@@ -80,16 +61,15 @@ namespace FlowerMadness.Controllers
             return BadRequest(ModelState);
         }
 
-        [HttpGet("users/{id}", Name = GetUserByIdActionName)]
+
+        [HttpGet("users/me")]
         [ProducesResponseType(200, Type = typeof(UserViewModel))]
         [ProducesResponseType(403)]
-        [ProducesResponseType(404)]
-        public async Task<IActionResult> GetUserById1(string id)
+        [Authorize(AuthenticationSchemes = IdentityServerAuthenticationDefaults.AuthenticationScheme)]
+        public async Task<IActionResult> GetCurrentUser()
         {
-            if (!(await _authorizationService.AuthorizeAsync(this.User, id, AccountManagementOperations.Read)).Succeeded)
-                return new ChallengeResult();
-
-
+            var id = Utilities.GetUserId(this.User);
+            
             UserViewModel userVM = await GetUserViewModelHelper(id);
 
             if (userVM != null)
@@ -98,24 +78,71 @@ namespace FlowerMadness.Controllers
                 return NotFound(id);
         }
 
-        [HttpGet("roles/name/{name}")]
-        [ProducesResponseType(200, Type = typeof(RoleViewModel))]
+        [HttpPut("users/me")]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(400)]
         [ProducesResponseType(403)]
-        [ProducesResponseType(404)]
-        public async Task<IActionResult> GetRoleByName1(string name)
+        [Authorize(AuthenticationSchemes = IdentityServerAuthenticationDefaults.AuthenticationScheme)]
+        public async Task<IActionResult> UpdateCurrentUser([FromBody] UserUpdateModel user)
         {
-            if (!(await _authorizationService.AuthorizeAsync(this.User, name, Authorization.Policies.ViewRoleByRoleNamePolicy)).Succeeded)
-                return new ChallengeResult();
+            var id = Utilities.GetUserId(this.User);
 
+            ApplicationUser appUser = await _accountManager.GetUserByIdAsync(id);
 
-            RoleViewModel roleVM = await GetRoleViewModelHelper(name);
+            if (ModelState.IsValid)
+            {
+                if (user == null)
+                    return BadRequest($"{nameof(user)} cannot be null");
 
-            if (roleVM == null)
-                return NotFound(name);
+                if (appUser == null)
+                    return NotFound(id);
 
-            return Ok(roleVM);
+                bool isPasswordChanged = !string.IsNullOrWhiteSpace(user.NewPassword);
+                bool isUserNameChanged = !appUser.UserName.Equals(user.UserName, StringComparison.OrdinalIgnoreCase);
+
+                if (Utilities.GetUserId(this.User) == id)
+                {
+                    if (string.IsNullOrWhiteSpace(user.CurrentPassword))
+                    {
+                        if (isPasswordChanged)
+                            AddError("Current password is required when changing your own password", "Password");
+
+                        if (isUserNameChanged)
+                            AddError("Current password is required when changing your own username", "Username");
+                    }
+                    else if (isPasswordChanged || isUserNameChanged)
+                    {
+                        if (!await _accountManager.CheckPasswordAsync(appUser, user.CurrentPassword))
+                            AddError("The username/password couple is invalid.");
+                    }
+                }
+
+                if (ModelState.IsValid)
+                {
+                    _mapper.Map<UserUpdateModel, ApplicationUser>(user, appUser);
+
+                    var result = await _accountManager.UpdateUserAsync(appUser, user.Roles);
+                    if (result.Succeeded)
+                    {
+                        if (isPasswordChanged)
+                        {
+                            if (!string.IsNullOrWhiteSpace(user.CurrentPassword))
+                                result = await _accountManager.UpdatePasswordAsync(appUser, user.CurrentPassword, user.NewPassword);
+                            else
+                                result = await _accountManager.ResetPasswordAsync(appUser, user.NewPassword);
+                        }
+
+                        if (result.Succeeded)
+                            return NoContent();
+                    }
+
+                    AddError(result.Errors);
+                }
+            }
+
+            return BadRequest(ModelState);
         }
-
+        
         private async Task<UserViewModel> GetUserViewModelHelper(string userId)
         {
             var userAndRoles = await _accountManager.GetUserAndRolesAsync(userId);

@@ -21,14 +21,13 @@ namespace DAL.Models
         public DateTime DateCreated { get; set; }
         public DateTime DateModified { get; set; }
 
-
-        public int? ParentId { get; set; }
-        public Product Parent { get; set; }
+        //public int? ParentId { get; set; }
+        //public Product Parent { get; set; }
 
         public int ProductCategoryId { get; set; }
         public ProductCategory ProductCategory { get; set; }
 
-        public ICollection<Product> Children { get; set; }
-        public ICollection<OrderDetail> OrderDetails { get; set; }
+        //public ICollection<Product> Children { get; set; }
+        public ICollection<OrderDetail> OrderDetails { get; set; } = new HashSet<OrderDetail>();
     }
 }

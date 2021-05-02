@@ -30,7 +30,6 @@ namespace DAL.Repositories
             _entities.AddRange(entities);
         }
 
-
         public virtual void Update(TEntity entity)
         {
             _entities.Update(entity);
@@ -40,25 +39,26 @@ namespace DAL.Repositories
         {
             _entities.UpdateRange(entities);
         }
-
-
-
-        public virtual void Remove(TEntity entity)
+        
+        public virtual void Delete(TEntity entity)
         {
             _entities.Remove(entity);
         }
 
-        public virtual void RemoveRange(IEnumerable<TEntity> entities)
+        public virtual void DeleteRange(IEnumerable<TEntity> entities)
         {
             _entities.RemoveRange(entities);
         }
-
+        
+        public virtual void Delete(int id)
+        {
+            _entities.Remove(Get(id));
+        }
 
         public virtual int Count()
         {
             return _entities.Count();
         }
-
 
         public virtual IEnumerable<TEntity> Find(Expression<Func<TEntity, bool>> predicate)
         {

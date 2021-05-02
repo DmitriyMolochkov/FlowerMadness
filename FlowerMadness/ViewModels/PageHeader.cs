@@ -1,9 +1,4 @@
-﻿
-
-
-
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -20,7 +15,6 @@ namespace FlowerMadness.ViewModels
             this.TotalItems = totalItems;
             this.TotalPages = totalPages;
         }
-
 
         public int CurrentPage { get; set; }
         public int ItemsPerPage { get; set; }

@@ -1,9 +1,4 @@
-﻿
-
-
-
-
-using DAL.Core;
+﻿using DAL.Core;
 using System;
 using System.Linq;
 
@@ -15,7 +10,6 @@ namespace FlowerMadness.ViewModels
         public string Value { get; set; }
         public string GroupName { get; set; }
         public string Description { get; set; }
-
 
         public static explicit operator PermissionViewModel(ApplicationPermission permission)
         {

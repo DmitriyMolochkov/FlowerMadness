@@ -23,10 +23,9 @@ namespace DAL.Models
             }
         }
 
-
         public string JobTitle { get; set; }
         public string FullName { get; set; }
-        public string Configuration { get; set; }
+        //public string Configuration { get; set; }
         public bool IsEnabled { get; set; }
         public bool IsLockedOut => this.LockoutEnabled && this.LockoutEnd >= DateTimeOffset.UtcNow;
 
@@ -34,22 +33,24 @@ namespace DAL.Models
         public string UpdatedBy { get; set; }
         public DateTime CreatedDate { get; set; }
         public DateTime UpdatedDate { get; set; }
+        //public Customer CurrentCustomer => Customers.OrderBy(x => x.DateCreated).LastOrDefault();
 
 
+        public ICollection<Customer> Customers { get; set; } = new HashSet<Customer>();
 
         /// <summary>
         /// Navigation property for the roles this user belongs to.
         /// </summary>
-        public virtual ICollection<IdentityUserRole<string>> Roles { get; set; }
+        public virtual ICollection<IdentityUserRole<string>> Roles { get; set; } = new HashSet<IdentityUserRole<string>>();
 
         /// <summary>
         /// Navigation property for the claims this user possesses.
         /// </summary>
-        public virtual ICollection<IdentityUserClaim<string>> Claims { get; set; }
+        public virtual ICollection<IdentityUserClaim<string>> Claims { get; set; } = new HashSet<IdentityUserClaim<string>>();
 
-        /// <summary>
-        /// Demo Navigation property for orders this user has processed
-        /// </summary>
-        public ICollection<Order> Orders { get; set; }
+        ///// <summary>
+        ///// Demo Navigation property for orders this user has processed
+        ///// </summary>
+        //public ICollection<Order> Orders { get; set; }
     }
 }

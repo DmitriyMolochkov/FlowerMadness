@@ -14,7 +14,6 @@ namespace FlowerMadness.Helpers
     {
         static ILoggerFactory _loggerFactory;
 
-
         public static void ConfigureLogger(ILoggerFactory loggerFactory)
         {
             _loggerFactory = loggerFactory;

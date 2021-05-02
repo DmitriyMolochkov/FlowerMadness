@@ -39,8 +39,8 @@ namespace FlowerMadness.Authorization
             if (user.FullName != null)
                 claims.Add(new Claim(PropertyConstants.FullName, user.FullName));
 
-            if (user.Configuration != null)
-                claims.Add(new Claim(PropertyConstants.Configuration, user.Configuration));
+            //if (user.Configuration != null)
+            //    claims.Add(new Claim(PropertyConstants.Configuration, user.Configuration));
 
             context.IssuedClaims = claims;
         }

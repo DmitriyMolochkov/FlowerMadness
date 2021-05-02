@@ -18,12 +18,12 @@ namespace DAL.Repositories
 
         public async Task<List<Product>> GetAllWithFiltersAsync()
         {
-            return await _appContext.Products.Include(x => x.Parent).Include(x => x.Children).ToListAsync();
+            return await _appContext.Products/*.Include(x => x.Parent).Include(x => x.Children)*/.ToListAsync();
         }
 
         public async Task<Product> GetByIdAsync(int id)
         {
-            return await _appContext.Products.Where(x => x.Id == id).Include(x => x.Parent).Include(x => x.Children).FirstOrDefaultAsync();
+            return await _appContext.Products.Where(x => x.Id == id)/*.Include(x => x.Parent).Include(x => x.Children)*/.FirstOrDefaultAsync();
         }
 
         public async Task<Product> PostAsync(Product product)
@@ -31,7 +31,7 @@ namespace DAL.Repositories
             return (await _appContext.Products.AddAsync(product)).Entity;
         }
 
-        public async Task<Product> PutAsync(Product product)
+        public Product Put(Product product)
         {
             return _appContext.Products.Update(product).Entity;
         }

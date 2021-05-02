@@ -69,7 +69,10 @@ namespace FlowerMadness.Controllers
                 return new ChallengeResult();
 
             var product = _mapper.Map<Product>(model);
-            return Ok(_mapper.Map<ProductViewModel>(await _unitOfWork.Products.PostAsync(product)));
+            var result = _mapper.Map<ProductViewModel>(await _unitOfWork.Products.PostAsync(product));
+            _unitOfWork.SaveChanges();
+            return Ok(result);
+            
         }
 
         [HttpPut("{id}")]
@@ -84,7 +87,10 @@ namespace FlowerMadness.Controllers
                 return new ChallengeResult();
 
             var product = _mapper.Map<Product>(model);
-            return Ok(_mapper.Map<ProductViewModel>(await _unitOfWork.Products.PostAsync(product)));
+            var result = _mapper.Map<ProductViewModel>(_unitOfWork.Products.Put(product));
+            _unitOfWork.SaveChanges();
+            return Ok(result);
+           
         }
 
         [HttpDelete("{id}")]
@@ -99,6 +105,7 @@ namespace FlowerMadness.Controllers
                 return new ChallengeResult();
 
             await _unitOfWork.Products.DeleteAsync(id);
+            _unitOfWork.SaveChanges();
             return Ok();
         }
     }

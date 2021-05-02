@@ -1,9 +1,4 @@
-﻿
-
-
-
-
-using DAL.Repositories;
+﻿using DAL.Repositories;
 using DAL.Repositories.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -20,6 +15,7 @@ namespace DAL
         ICustomerRepository _customers;
         IProductRepository _products;
         IOrdersRepository _orders;
+        IOrderDetailsRepository _orderDetails;
 
         public UnitOfWork(ApplicationDbContext context)
         {
@@ -56,6 +52,17 @@ namespace DAL
                     _orders = new OrdersRepository(_context);
 
                 return _orders;
+            }
+        }
+
+        public IOrderDetailsRepository OrderDetails
+        {
+            get
+            {
+                if (_orderDetails == null)
+                    _orderDetails = new OrderDetailsRepository(_context);
+
+                return _orderDetails;
             }
         }
 

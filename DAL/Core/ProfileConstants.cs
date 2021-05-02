@@ -1,9 +1,4 @@
-﻿
-
-
-
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -31,8 +26,8 @@ namespace DAL.Core
         ///<summary>A property that specifies the job title of an entity</summary>
         public const string JobTitle = "jobtitle";
 
-        ///<summary>A property that specifies the configuration/customizations of an entity</summary>
-        public const string Configuration = "configuration";
+        /////<summary>A property that specifies the configuration/customizations of an entity</summary>
+        //public const string Configuration = "configuration";
     }
 
 

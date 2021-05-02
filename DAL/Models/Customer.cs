@@ -18,8 +18,10 @@ namespace DAL.Models
         public Gender Gender { get; set; }
         public DateTime DateCreated { get; set; }
         public DateTime DateModified { get; set; }
+        
+        public string ApplicationUserId { get; set; }
+        public ApplicationUser ApplicationUser { get; set; }
 
-
-        public ICollection<Order> Orders { get; set; }
+        public ICollection<Order> Orders { get; set; } = new HashSet<Order>();
     }
 }

@@ -1,9 +1,4 @@
-﻿
-
-
-
-
-using FlowerMadness.Helpers;
+﻿using FlowerMadness.Helpers;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;

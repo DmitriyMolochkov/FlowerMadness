@@ -33,7 +33,6 @@ namespace FlowerMadness.Authorization
             return Task.CompletedTask;
         }
 
-
         private bool GetIsRolesChanged(string[] newRoles, string[] currentRoles)
         {
             if (newRoles == null)
@@ -48,7 +47,6 @@ namespace FlowerMadness.Authorization
 
             return roleAdded || roleRemoved;
         }
-
 
         private bool GetIsUserInAllAddedRoles(ClaimsPrincipal contextUser, string[] newRoles, string[] currentRoles)
         {

@@ -11,7 +11,6 @@ namespace FlowerMadness.Helpers
         static string testEmailTemplate;
         static string plainTextTestEmailTemplate;
 
-
         public static void Initialize(IWebHostEnvironment hostingEnvironment)
         {
             _hostingEnvironment = hostingEnvironment;
@@ -29,6 +28,7 @@ namespace FlowerMadness.Helpers
 
             return emailMessage;
         }
+        
         public static string GetPlainTextTestEmail(DateTime date)
         {
             if (plainTextTestEmailTemplate == null)
@@ -40,6 +40,7 @@ namespace FlowerMadness.Helpers
 
             return emailMessage;
         }
+        
         private static string ReadPhysicalFile(string path)
         {
             if (_hostingEnvironment == null)

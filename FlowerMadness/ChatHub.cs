@@ -22,13 +22,13 @@ namespace FlowerMadness
         [Authorize(AuthenticationSchemes = IdentityServerAuthenticationDefaults.AuthenticationScheme, Roles = "manager, administrator")]
         public async Task SendFromManager(string message, string to)
         {
-            var userName = MANAGER;
+            var userName = Context.UserIdentifier;
             var time = DateTime.Now.ToString();
             if (Context.UserIdentifier != to) // если получатель и текущий пользователь не совпадают
                 await Clients.Groups(MANAGERS_GROUP).SendAsync("Receive", message, userName, to, time);
             await Clients.User(to).SendAsync("Receive", message, userName, to, time);
 
-            AddMessageinCache(MANAGER, to, message, time);
+            AddMessageinCache(userName, to, message, time);
         }
 
         public async Task SendFromUser(string message)
@@ -43,9 +43,9 @@ namespace FlowerMadness
             AddMessageinCache(userName, to, message, time);
         }
 
-        private void AddMessageinCache(string userName, string to, string message, string time/*, string UserImg*/)
+        private void AddMessageinCache(string userName, string to, string message, string time)
         {
-            CurrentMessage.Add(new Messages { UserName = userName, To = to, Message = message, Time = time/*, UserImage = UserImg */});
+            CurrentMessage.Add(new Messages { UserName = userName, To = to, Message = message, Time = time});
         }
 
         public override async Task OnConnectedAsync()
@@ -58,34 +58,16 @@ namespace FlowerMadness
             }
             
             // send to caller
-            foreach (var message in CurrentMessage.Where(x => isManager ? 
-                x.To == MANAGER || x.UserName == MANAGER : 
-                x.To == Context.UserIdentifier || x.UserName == Context.UserIdentifier))
+            foreach (var message in CurrentMessage.Where(x => isManager || x.To == Context.UserIdentifier || x.UserName == Context.UserIdentifier))
             {
                 await Clients.Caller.SendAsync("Receive", message.Message, message.UserName, message.To, message.Time);
             }
 
-            var helloMessage = isManager ? MANAGER : Context.UserIdentifier;
-            //await Clients.All.SendAsync("Notify", $"Приветствуем {helloMessage}", isManager);
-            await Clients.User(Context.UserIdentifier).SendAsync("Notify", $"Привет, {helloMessage}!", isManager);
+            await Clients.User(Context.UserIdentifier).SendAsync("Notify", $"Привет, {Context.UserIdentifier}!", isManager);
             await base.OnConnectedAsync();
         }
     }
-    //public class ChatHub : Hub
-    //{
-    //    public async Task Send(string message)
-    //    {
-    //        var user = Context.User;
-    //        var userName = user.Identity.Name;
-    //        // получаем роль
-    //        var userRole = user.FindFirstValue("role");
-    //        // принадлежит ли пользователь роли "admins"
-    //        var isAdmin = user.IsInRole("admin");
-
-    //        await Clients.All.SendAsync("Send", message, userName);
-    //    }
-    //}
-
+    
     public class CustomUserIdProvider : IUserIdProvider
     {
         public virtual string GetUserId(HubConnectionContext connection)
@@ -93,7 +75,6 @@ namespace FlowerMadness
             return connection.User?.Identity.Name;
         }
     }
-
 
     public class Messages
     {
