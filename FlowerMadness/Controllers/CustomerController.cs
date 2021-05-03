@@ -11,76 +11,76 @@ using System.Threading.Tasks;
 
 namespace FlowerMadness.Controllers
 {
-    [Route("api/[controller]")]
-    public class CustomerController : ControllerBase
-    {
-        private readonly IMapper _mapper;
-        private readonly IUnitOfWork _unitOfWork;
-        private readonly ILogger _logger;
-        private readonly IEmailSender _emailSender;
+    //[Route("api/[controller]")]
+    //public class CustomerController : ControllerBase
+    //{
+    //    private readonly IMapper _mapper;
+    //    private readonly IUnitOfWork _unitOfWork;
+    //    private readonly ILogger _logger;
+    //    private readonly IEmailSender _emailSender;
 
 
-        public CustomerController(IMapper mapper, IUnitOfWork unitOfWork, ILogger<CustomerController> logger, IEmailSender emailSender)
-        {
-            _mapper = mapper;
-            _unitOfWork = unitOfWork;
-            _logger = logger;
-            _emailSender = emailSender;
-        }
+    //    public CustomerController(IMapper mapper, IUnitOfWork unitOfWork, ILogger<CustomerController> logger, IEmailSender emailSender)
+    //    {
+    //        _mapper = mapper;
+    //        _unitOfWork = unitOfWork;
+    //        _logger = logger;
+    //        _emailSender = emailSender;
+    //    }
 
-        // GET: api/values
-        [HttpGet]
-        public IActionResult Get()
-        {
-            var allCustomers = _unitOfWork.Customers.GetAllCustomersData();
-            return Ok(_mapper.Map<IEnumerable<CustomerViewModel>>(allCustomers));
-        }
+    //    // GET: api/values
+    //    [HttpGet]
+    //    public IActionResult Get()
+    //    {
+    //        var allCustomers = _unitOfWork.Customers.GetAllCustomersData();
+    //        return Ok(_mapper.Map<IEnumerable<CustomerViewModel>>(allCustomers));
+    //    }
 
-        [HttpGet("throw")]
-        public IEnumerable<CustomerViewModel> Throw()
-        {
-            throw new InvalidOperationException("This is a test exception: " + DateTime.Now);
-        }
+    //    [HttpGet("throw")]
+    //    public IEnumerable<CustomerViewModel> Throw()
+    //    {
+    //        throw new InvalidOperationException("This is a test exception: " + DateTime.Now);
+    //    }
 
-        [HttpGet("email")]
-        public async Task<string> Email()
-        {
-            string recepientName = "QickApp Tester"; //         <===== Put the recepient's name here
-            string recepientEmail = "test@ebenmonney.com"; //   <===== Put the recepient's email here
+    //    [HttpGet("email")]
+    //    public async Task<string> Email()
+    //    {
+    //        string recepientName = "QickApp Tester"; //         <===== Put the recepient's name here
+    //        string recepientEmail = "test@ebenmonney.com"; //   <===== Put the recepient's email here
 
-            string message = EmailTemplates.GetTestEmail(recepientName, DateTime.UtcNow);
+    //        string message = EmailTemplates.GetTestEmail(recepientName, DateTime.UtcNow);
 
-            (bool success, string errorMsg) = await _emailSender.SendEmailAsync(recepientName, recepientEmail, "Test Email from FlowerMadness", message);
+    //        (bool success, string errorMsg) = await _emailSender.SendEmailAsync(recepientName, recepientEmail, "Test Email from FlowerMadness", message);
 
-            if (success)
-                return "Success";
+    //        if (success)
+    //            return "Success";
 
-            return "Error: " + errorMsg;
-        }
+    //        return "Error: " + errorMsg;
+    //    }
 
-        // GET api/values/5
-        [HttpGet("{id}")]
-        public string Get(int id)
-        {
-            return "value: " + id;
-        }
+    //    // GET api/values/5
+    //    [HttpGet("{id}")]
+    //    public string Get(int id)
+    //    {
+    //        return "value: " + id;
+    //    }
 
-        // POST api/values
-        [HttpPost]
-        public void Post([FromBody] string value)
-        {
-        }
+    //    // POST api/values
+    //    [HttpPost]
+    //    public void Post([FromBody] string value)
+    //    {
+    //    }
         
-        // PUT api/values/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
-        {
-        }
+    //    // PUT api/values/5
+    //    [HttpPut("{id}")]
+    //    public void Put(int id, [FromBody] string value)
+    //    {
+    //    }
 
-        // DELETE api/values/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
-        }
-    }
+    //    // DELETE api/values/5
+    //    [HttpDelete("{id}")]
+    //    public void Delete(int id)
+    //    {
+    //    }
+    //}
 }

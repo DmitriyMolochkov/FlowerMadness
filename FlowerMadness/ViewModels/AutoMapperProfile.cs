@@ -35,7 +35,7 @@ namespace FlowerMadness.ViewModels
                 .ReverseMap();
 
             CreateMap<ApplicationRole, RoleViewModel>()
-                .ForMember(d => d.Permissions, map => map.MapFrom(s => s.Claims))
+                //.ForMember(d => d.Permissions, map => map.MapFrom(s => s.Claims))
                 .ForMember(d => d.UsersCount, map => map.MapFrom(s => s.Users != null ? s.Users.Count : 0))
                 .ReverseMap();
             CreateMap<RoleViewModel, ApplicationRole>()

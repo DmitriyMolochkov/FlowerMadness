@@ -18,7 +18,8 @@ using Microsoft.IdentityModel.JsonWebTokens;
 
 namespace FlowerMadness.Controllers
 {
-    [Authorize(AuthenticationSchemes = IdentityServerAuthenticationDefaults.AuthenticationScheme)]
+    //[Authorize(AuthenticationSchemes = IdentityServerAuthenticationDefaults.AuthenticationScheme)]
+    [Authorize(AuthenticationSchemes = IdentityServerAuthenticationDefaults.AuthenticationScheme, Roles = "administrator")]
     [Route("api/[controller]")]
     public class AccountController : ControllerBase
     {
@@ -51,9 +52,8 @@ namespace FlowerMadness.Controllers
         [ProducesResponseType(404)]
         public async Task<IActionResult> GetUserById(string id)
         {
-            if (!(await _authorizationService.AuthorizeAsync(this.User, id, AccountManagementOperations.Read)).Succeeded)
-                return new ChallengeResult();
-            
+            //if (!(await _authorizationService.AuthorizeAsync(this.User, id, AccountManagementOperations.Read)).Succeeded)
+             //   return new ChallengeResult();
 
             UserViewModel userVM = await GetUserViewModelHelper(id);
 
@@ -71,8 +71,8 @@ namespace FlowerMadness.Controllers
         {
             ApplicationUser appUser = await _accountManager.GetUserByUserNameAsync(userName);
 
-            if (!(await _authorizationService.AuthorizeAsync(this.User, appUser?.Id ?? "", AccountManagementOperations.Read)).Succeeded)
-                return new ChallengeResult();
+            //if (!(await _authorizationService.AuthorizeAsync(this.User, appUser?.Id ?? "", AccountManagementOperations.Read)).Succeeded)
+            //    return new ChallengeResult();
 
             if (appUser == null)
                 return NotFound(userName);
@@ -81,17 +81,17 @@ namespace FlowerMadness.Controllers
         }
 
         [HttpGet("users")]
-        [Authorize(Authorization.Policies.ViewAllUsersPolicy)]
+        //[Authorize(Authorization.Policies.ViewAllUsersPolicy)]
         [ProducesResponseType(200, Type = typeof(List<UserViewModel>))]
         public async Task<IActionResult> GetUsers()
         {
             return await GetUsers(-1, -1);
         }
 
-        [HttpGet("users/{pageNumber:int}/{pageSize:int}")]
-        [Authorize(Authorization.Policies.ViewAllUsersPolicy)]
-        [ProducesResponseType(200, Type = typeof(List<UserViewModel>))]
-        public async Task<IActionResult> GetUsers(int pageNumber, int pageSize)
+        //[HttpGet("users/{pageNumber:int}/{pageSize:int}")]
+        //[Authorize(Authorization.Policies.ViewAllUsersPolicy)]
+        //[ProducesResponseType(200, Type = typeof(List<UserViewModel>))]
+        private async Task<IActionResult> GetUsers(int pageNumber, int pageSize)
         {
             var usersAndRoles = await _accountManager.GetUsersAndRolesAsync(pageNumber, pageSize);
 
@@ -108,15 +108,6 @@ namespace FlowerMadness.Controllers
             return Ok(usersVM);
         }
 
-        //[HttpPut("users/me")]
-        //[ProducesResponseType(204)]
-        //[ProducesResponseType(400)]
-        //[ProducesResponseType(403)]
-        //public async Task<IActionResult> UpdateCurrentUser([FromBody] UserEditViewModel user)
-        //{
-        //    return await UpdateUser(Utilities.GetUserId(this.User), user);
-        //}
-
         [HttpPut("users/{id}")]
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
@@ -127,13 +118,11 @@ namespace FlowerMadness.Controllers
             ApplicationUser appUser = await _accountManager.GetUserByIdAsync(id);
             string[] currentRoles = appUser != null ? (await _accountManager.GetUserRolesAsync(appUser)).ToArray() : null;
 
-            var manageUsersPolicy = _authorizationService.AuthorizeAsync(this.User, id, AccountManagementOperations.Update);
-            var assignRolePolicy = _authorizationService.AuthorizeAsync(this.User, (user.Roles, currentRoles), Authorization.Policies.AssignAllowedRolesPolicy);
-
-
-            if ((await Task.WhenAll(manageUsersPolicy, assignRolePolicy)).Any(r => !r.Succeeded))
-                return new ChallengeResult();
-
+            //var manageUsersPolicy = _authorizationService.AuthorizeAsync(this.User, id, AccountManagementOperations.Update);
+            //var assignRolePolicy = _authorizationService.AuthorizeAsync(this.User, (user.Roles, currentRoles), Authorization.Policies.AssignAllowedRolesPolicy);
+            
+            //if ((await Task.WhenAll(manageUsersPolicy, assignRolePolicy)).Any(r => !r.Succeeded))
+            //    return new ChallengeResult();
 
             if (ModelState.IsValid)
             {
@@ -192,6 +181,16 @@ namespace FlowerMadness.Controllers
             return BadRequest(ModelState);
         }
 
+        #region MyRegion
+        //[HttpPut("users/me")]
+        //[ProducesResponseType(204)]
+        //[ProducesResponseType(400)]
+        //[ProducesResponseType(403)]
+        //public async Task<IActionResult> UpdateCurrentUser([FromBody] UserEditViewModel user)
+        //{
+        //    return await UpdateUser(Utilities.GetUserId(this.User), user);
+        //}
+
         //[HttpPatch("users/me")]
         //[ProducesResponseType(204)]
         //[ProducesResponseType(400)]
@@ -200,129 +199,47 @@ namespace FlowerMadness.Controllers
         //    return await UpdateUser(Utilities.GetUserId(this.User), patch);
         //}
 
-        [HttpPatch("users/{id}")]
-        [ProducesResponseType(204)]
-        [ProducesResponseType(400)]
-        [ProducesResponseType(403)]
-        [ProducesResponseType(404)]
-        public async Task<IActionResult> UpdateUser(string id, [FromBody] JsonPatchDocument<UserPatchViewModel> patch)
-        {
-            if (!(await _authorizationService.AuthorizeAsync(this.User, id, AccountManagementOperations.Update)).Succeeded)
-                return new ChallengeResult();
+        //[HttpPatch("users/{id}")]
+        //[ProducesResponseType(204)]
+        //[ProducesResponseType(400)]
+        //[ProducesResponseType(403)]
+        //[ProducesResponseType(404)]
+        //public async Task<IActionResult> UpdateUser(string id, [FromBody] JsonPatchDocument<UserPatchViewModel> patch)
+        //{
+        //    if (!(await _authorizationService.AuthorizeAsync(this.User, id, AccountManagementOperations.Update)).Succeeded)
+        //        return new ChallengeResult();
 
 
-            if (ModelState.IsValid)
-            {
-                if (patch == null)
-                    return BadRequest($"{nameof(patch)} cannot be null");
+        //    if (ModelState.IsValid)
+        //    {
+        //        if (patch == null)
+        //            return BadRequest($"{nameof(patch)} cannot be null");
 
 
-                ApplicationUser appUser = await _accountManager.GetUserByIdAsync(id);
+        //        ApplicationUser appUser = await _accountManager.GetUserByIdAsync(id);
 
-                if (appUser == null)
-                    return NotFound(id);
-
-
-                UserPatchViewModel userPVM = _mapper.Map<UserPatchViewModel>(appUser);
-                patch.ApplyTo(userPVM, (e) => AddError(e.ErrorMessage));
-
-                if (ModelState.IsValid)
-                {
-                    _mapper.Map<UserPatchViewModel, ApplicationUser>(userPVM, appUser);
-
-                    var result = await _accountManager.UpdateUserAsync(appUser);
-                    if (result.Succeeded)
-                        return NoContent();
+        //        if (appUser == null)
+        //            return NotFound(id);
 
 
-                    AddError(result.Errors);
-                }
-            }
+        //        UserPatchViewModel userPVM = _mapper.Map<UserPatchViewModel>(appUser);
+        //        patch.ApplyTo(userPVM, (e) => AddError(e.ErrorMessage));
 
-            return BadRequest(ModelState);
-        }
+        //        if (ModelState.IsValid)
+        //        {
+        //            _mapper.Map<UserPatchViewModel, ApplicationUser>(userPVM, appUser);
 
-        [HttpPost("users")]
-        [Authorize(Authorization.Policies.ManageAllUsersPolicy)]
-        [ProducesResponseType(201, Type = typeof(UserViewModel))]
-        [ProducesResponseType(400)]
-        [ProducesResponseType(403)]
-        public async Task<IActionResult> Register([FromBody] UserEditViewModel user)
-        {
-            if (!(await _authorizationService.AuthorizeAsync(this.User, (user.Roles, new string[] { }), Authorization.Policies.AssignAllowedRolesPolicy)).Succeeded)
-                return new ChallengeResult();
+        //            var result = await _accountManager.UpdateUserAsync(appUser);
+        //            if (result.Succeeded)
+        //                return NoContent();
 
 
-            if (ModelState.IsValid)
-            {
-                if (user == null)
-                    return BadRequest($"{nameof(user)} cannot be null");
+        //            AddError(result.Errors);
+        //        }
+        //    }
 
-
-                ApplicationUser appUser = _mapper.Map<ApplicationUser>(user);
-
-                var result = await _accountManager.CreateUserAsync(appUser, user.Roles, user.NewPassword);
-                if (result.Succeeded)
-                {
-                    UserViewModel userVM = await GetUserViewModelHelper(appUser.Id);
-                    return CreatedAtAction(GetUserByIdActionName, new { id = userVM.Id }, userVM);
-                }
-
-                AddError(result.Errors);
-            }
-
-            return BadRequest(ModelState);
-        }
-
-        [HttpDelete("users/{id}")]
-        [ProducesResponseType(200, Type = typeof(UserViewModel))]
-        [ProducesResponseType(400)]
-        [ProducesResponseType(403)]
-        [ProducesResponseType(404)]
-        public async Task<IActionResult> DeleteUser(string id)
-        {
-            if (!(await _authorizationService.AuthorizeAsync(this.User, id, AccountManagementOperations.Delete)).Succeeded)
-                return new ChallengeResult();
-
-
-            ApplicationUser appUser = await _accountManager.GetUserByIdAsync(id);
-
-            if (appUser == null)
-                return NotFound(id);
-
-            if (!await _accountManager.TestCanDeleteUserAsync(id))
-                return BadRequest("User cannot be deleted. Delete all orders associated with this user and try again");
-
-
-            UserViewModel userVM = await GetUserViewModelHelper(appUser.Id);
-
-            var result = await _accountManager.DeleteUserAsync(appUser);
-            if (!result.Succeeded)
-                throw new Exception("The following errors occurred whilst deleting user: " + string.Join(", ", result.Errors));
-
-
-            return Ok(userVM);
-        }
-
-        [HttpPut("users/unblock/{id}")]
-        [Authorize(Authorization.Policies.ManageAllUsersPolicy)]
-        [ProducesResponseType(204)]
-        [ProducesResponseType(404)]
-        public async Task<IActionResult> UnblockUser(string id)
-        {
-            ApplicationUser appUser = await _accountManager.GetUserByIdAsync(id);
-
-            if (appUser == null)
-                return NotFound(id);
-
-            appUser.LockoutEnd = null;
-            var result = await _accountManager.UpdateUserAsync(appUser);
-            if (!result.Succeeded)
-                throw new Exception("The following errors occurred whilst unblocking user: " + string.Join(", ", result.Errors));
-
-
-            return NoContent();
-        }
+        //    return BadRequest(ModelState);
+        //}
 
         //[HttpGet("users/me/preferences")]
         //[ProducesResponseType(200, Type = typeof(string))]
@@ -350,6 +267,107 @@ namespace FlowerMadness.Controllers
         //    return NoContent();
         //}
 
+        #endregion
+
+        [HttpPost("users")]
+        //[Authorize(Authorization.Policies.ManageAllUsersPolicy)]
+        [ProducesResponseType(201, Type = typeof(UserViewModel))]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(403)]
+        public async Task<IActionResult> Register([FromBody] UserEditViewModel user)
+        {
+            //if (!(await _authorizationService.AuthorizeAsync(this.User, (user.Roles, new string[] { }), Authorization.Policies.AssignAllowedRolesPolicy)).Succeeded)
+            //    return new ChallengeResult();
+
+            if (ModelState.IsValid)
+            {
+                if (user == null)
+                    return BadRequest($"{nameof(user)} cannot be null");
+
+                ApplicationUser appUser = _mapper.Map<ApplicationUser>(user);
+
+                var result = await _accountManager.CreateUserAsync(appUser, user.Roles, user.NewPassword);
+                if (result.Succeeded)
+                {
+                    UserViewModel userVM = await GetUserViewModelHelper(appUser.Id);
+                    return CreatedAtAction(GetUserByIdActionName, new { id = userVM.Id }, userVM);
+                }
+
+                AddError(result.Errors);
+            }
+
+            return BadRequest(ModelState);
+        }
+
+        [HttpDelete("users/{id}")]
+        [ProducesResponseType(200, Type = typeof(UserViewModel))]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(403)]
+        [ProducesResponseType(404)]
+        public async Task<IActionResult> DeleteUser(string id)
+        {
+            //if (!(await _authorizationService.AuthorizeAsync(this.User, id, AccountManagementOperations.Delete)).Succeeded)
+            //    return new ChallengeResult();
+
+            ApplicationUser appUser = await _accountManager.GetUserByIdAsync(id);
+
+            if (appUser == null)
+                return NotFound(id);
+
+            if (!await _accountManager.TestCanDeleteUserAsync(id))
+                return BadRequest("User cannot be deleted. Delete all orders associated with this user and try again");
+
+
+            UserViewModel userVM = await GetUserViewModelHelper(appUser.Id);
+
+            var result = await _accountManager.DeleteUserAsync(appUser);
+            if (!result.Succeeded)
+                throw new Exception("The following errors occurred whilst deleting user: " + string.Join(", ", result.Errors));
+
+
+            return Ok(userVM);
+        }
+
+        [HttpPut("users/block/{id}")]
+        //[Authorize(Authorization.Policies.ManageAllUsersPolicy)]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(404)]
+        public async Task<IActionResult> BlockUser(string id)
+        {
+            ApplicationUser appUser = await _accountManager.GetUserByIdAsync(id);
+
+            if (appUser == null)
+                return NotFound(id);
+
+            appUser.LockoutEnd = DateTimeOffset.MaxValue;
+            var result = await _accountManager.UpdateUserAsync(appUser);
+            if (!result.Succeeded)
+                throw new Exception("The following errors occurred whilst blocking user: " + string.Join(", ", result.Errors));
+
+
+            return NoContent();
+        }
+
+        [HttpPut("users/unblock/{id}")]
+        //[Authorize(Authorization.Policies.ManageAllUsersPolicy)]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(404)]
+        public async Task<IActionResult> UnblockUser(string id)
+        {
+            ApplicationUser appUser = await _accountManager.GetUserByIdAsync(id);
+
+            if (appUser == null)
+                return NotFound(id);
+
+            appUser.LockoutEnd = null;
+            var result = await _accountManager.UpdateUserAsync(appUser);
+            if (!result.Succeeded)
+                throw new Exception("The following errors occurred whilst unblocking user: " + string.Join(", ", result.Errors));
+
+
+            return NoContent();
+        }
+
         [HttpGet("roles/{id}", Name = GetRoleByIdActionName)]
         [ProducesResponseType(200, Type = typeof(RoleViewModel))]
         [ProducesResponseType(403)]
@@ -358,8 +376,8 @@ namespace FlowerMadness.Controllers
         {
             var appRole = await _accountManager.GetRoleByIdAsync(id);
 
-            if (!(await _authorizationService.AuthorizeAsync(this.User, appRole?.Name ?? "", Authorization.Policies.ViewRoleByRoleNamePolicy)).Succeeded)
-                return new ChallengeResult();
+            //if (!(await _authorizationService.AuthorizeAsync(this.User, appRole?.Name ?? "", Authorization.Policies.ViewRoleByRoleNamePolicy)).Succeeded)
+            //    return new ChallengeResult();
 
             if (appRole == null)
                 return NotFound(id);
@@ -373,10 +391,9 @@ namespace FlowerMadness.Controllers
         [ProducesResponseType(404)]
         public async Task<IActionResult> GetRoleByName(string name)
         {
-            if (!(await _authorizationService.AuthorizeAsync(this.User, name, Authorization.Policies.ViewRoleByRoleNamePolicy)).Succeeded)
-                return new ChallengeResult();
-
-
+            //if (!(await _authorizationService.AuthorizeAsync(this.User, name, Authorization.Policies.ViewRoleByRoleNamePolicy)).Succeeded)
+            //    return new ChallengeResult();
+            
             RoleViewModel roleVM = await GetRoleViewModelHelper(name);
 
             if (roleVM == null)
@@ -386,24 +403,24 @@ namespace FlowerMadness.Controllers
         }
 
         [HttpGet("roles")]
-        [Authorize(Authorization.Policies.ViewAllRolesPolicy)]
+        //[Authorize(Authorization.Policies.ViewAllRolesPolicy)]
         [ProducesResponseType(200, Type = typeof(List<RoleViewModel>))]
         public async Task<IActionResult> GetRoles()
         {
             return await GetRoles(-1, -1);
         }
 
-        [HttpGet("roles/{pageNumber:int}/{pageSize:int}")]
-        [Authorize(Authorization.Policies.ViewAllRolesPolicy)]
-        [ProducesResponseType(200, Type = typeof(List<RoleViewModel>))]
-        public async Task<IActionResult> GetRoles(int pageNumber, int pageSize)
+        //[HttpGet("roles/{pageNumber:int}/{pageSize:int}")]
+        //[Authorize(Authorization.Policies.ViewAllRolesPolicy)]
+        //[ProducesResponseType(200, Type = typeof(List<RoleViewModel>))]
+        private async Task<IActionResult> GetRoles(int pageNumber, int pageSize)
         {
             var roles = await _accountManager.GetRolesLoadRelatedAsync(pageNumber, pageSize);
             return Ok(_mapper.Map<List<RoleViewModel>>(roles));
         }
 
         [HttpPut("roles/{id}")]
-        [Authorize(Authorization.Policies.ManageAllRolesPolicy)]
+        //[Authorize(Authorization.Policies.ManageAllRolesPolicy)]
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
@@ -416,18 +433,15 @@ namespace FlowerMadness.Controllers
 
                 if (!string.IsNullOrWhiteSpace(role.Id) && id != role.Id)
                     return BadRequest("Conflicting role id in parameter and model data");
-
-
-
+                
                 ApplicationRole appRole = await _accountManager.GetRoleByIdAsync(id);
 
                 if (appRole == null)
                     return NotFound(id);
 
-
                 _mapper.Map<RoleViewModel, ApplicationRole>(role, appRole);
 
-                var result = await _accountManager.UpdateRoleAsync(appRole, role.Permissions?.Select(p => p.Value).ToArray());
+                var result = await _accountManager.UpdateRoleAsync(appRole, new string[] { }/*role.Permissions?.Select(p => p.Value).ToArray()*/);
                 if (result.Succeeded)
                     return NoContent();
 
@@ -439,7 +453,7 @@ namespace FlowerMadness.Controllers
         }
 
         [HttpPost("roles")]
-        [Authorize(Authorization.Policies.ManageAllRolesPolicy)]
+        //[Authorize(Authorization.Policies.ManageAllRolesPolicy)]
         [ProducesResponseType(201, Type = typeof(RoleViewModel))]
         [ProducesResponseType(400)]
         public async Task<IActionResult> CreateRole([FromBody] RoleViewModel role)
@@ -449,10 +463,9 @@ namespace FlowerMadness.Controllers
                 if (role == null)
                     return BadRequest($"{nameof(role)} cannot be null");
 
-
                 ApplicationRole appRole = _mapper.Map<ApplicationRole>(role);
 
-                var result = await _accountManager.CreateRoleAsync(appRole, role.Permissions?.Select(p => p.Value).ToArray());
+                var result = await _accountManager.CreateRoleAsync(appRole, new string[]{}/*role.Permissions?.Select(p => p.Value).ToArray()*/);
                 if (result.Succeeded)
                 {
                     RoleViewModel roleVM = await GetRoleViewModelHelper(appRole.Name);
@@ -466,7 +479,7 @@ namespace FlowerMadness.Controllers
         }
 
         [HttpDelete("roles/{id}")]
-        [Authorize(Authorization.Policies.ManageAllRolesPolicy)]
+        //[Authorize(Authorization.Policies.ManageAllRolesPolicy)]
         [ProducesResponseType(200, Type = typeof(RoleViewModel))]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
@@ -491,13 +504,13 @@ namespace FlowerMadness.Controllers
             return Ok(roleVM);
         }
 
-        [HttpGet("permissions")]
-        [Authorize(Authorization.Policies.ViewAllRolesPolicy)]
-        [ProducesResponseType(200, Type = typeof(List<PermissionViewModel>))]
-        public IActionResult GetAllPermissions()
-        {
-            return Ok(_mapper.Map<List<PermissionViewModel>>(ApplicationPermissions.AllPermissions));
-        }
+        //[HttpGet("permissions")]
+        ////[Authorize(Authorization.Policies.ViewAllRolesPolicy)]
+        //[ProducesResponseType(200, Type = typeof(List<PermissionViewModel>))]
+        //public IActionResult GetAllPermissions()
+        //{
+        //    return Ok(_mapper.Map<List<PermissionViewModel>>(ApplicationPermissions.AllPermissions));
+        //}
 
         private async Task<UserViewModel> GetUserViewModelHelper(string userId)
         {

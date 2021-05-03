@@ -28,7 +28,7 @@ namespace FlowerMadness.Controllers
         public ShoppingCartController(
             IMapper mapper, 
             IUnitOfWork unitOfWork, 
-            ILogger<CustomerController> logger, 
+            ILogger<ShoppingCartController> logger, 
             IEmailSender emailSender,
             IAccountManager accountManager)
         {

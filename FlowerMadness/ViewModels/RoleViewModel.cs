@@ -19,6 +19,6 @@ namespace FlowerMadness.ViewModels
 
         public int UsersCount { get; set; }
 
-        public PermissionViewModel[] Permissions { get; set; }
+        //public PermissionViewModel[] Permissions { get; set; }
     }
 }
