@@ -16,7 +16,7 @@ using Microsoft.AspNetCore.Authorization;
 namespace FlowerMadness.Controllers
 {
     [Route("api/[controller]")]
-    [Authorize(AuthenticationSchemes = IdentityServerAuthenticationDefaults.AuthenticationScheme)]
+    [Authorize(AuthenticationSchemes = IdentityServerAuthenticationDefaults.AuthenticationScheme, Roles = "user, manager, administrator")]
     public class ShoppingCartController : ControllerBase
     {
         private readonly IMapper _mapper;
@@ -45,7 +45,7 @@ namespace FlowerMadness.Controllers
         [Authorize(AuthenticationSchemes = IdentityServerAuthenticationDefaults.AuthenticationScheme)]
         public async Task<IActionResult> GetCurrentOrder()
         {
-            var order = await GetOrderAsync();
+            var order = await GetOrderAsync(null);
             return Ok(_mapper.Map<OrderViewModel>(order));
         }
 
@@ -53,10 +53,10 @@ namespace FlowerMadness.Controllers
         [ProducesResponseType(200, Type = typeof(OrderViewModel))]
         [ProducesResponseType(403)]
         [Authorize(AuthenticationSchemes = IdentityServerAuthenticationDefaults.AuthenticationScheme)]
-        public async Task<IActionResult> GetOrderHistory()
+        public async Task<IActionResult> GetOrderHistory([FromQuery] OrderStatus? status)
         {
             var id = Utilities.GetUserId(this.User);
-            var orders = _unitOfWork.Orders.GetOrderHistory(id);
+            var orders = _unitOfWork.Orders.GetOrderHistory(id, status);
             return Ok(_mapper.Map<List<OrderViewModel>>(orders));
         }
 
@@ -65,14 +65,14 @@ namespace FlowerMadness.Controllers
         [ProducesResponseType(403)]
         [ProducesResponseType(404)]
         [Authorize(AuthenticationSchemes = IdentityServerAuthenticationDefaults.AuthenticationScheme)]
-        public async Task<IActionResult> ChangeProductCount(OrderDetailDtoModel model)
+        public async Task<IActionResult> ChangeProductCount([FromBody]OrderDetailDtoModel model)
         {
             var product = await _unitOfWork.Products.GetByIdAsync(model.ProductId);
 
             if (product == null)
                 return NotFound(model.ProductId);
 
-            var order = await GetOrderAsync();
+            var order = await GetOrderAsync(null);
             
 
             var orderDetail = _unitOfWork.OrderDetails.GetCurrentOrderDetailForOrder(order.Id, model.ProductId);
@@ -114,7 +114,7 @@ namespace FlowerMadness.Controllers
             if (customer == null)
                 return NotFound();
 
-            var order = _unitOfWork.Orders.GetCurrentOrderForCustomer(customer.Id);
+            var order = _unitOfWork.Orders.GetCurrentOrderForCustomer(customer.Id, null);
 
             if (order == null || order.OrderDetails.Count == 0)
                 return NotFound();
@@ -152,7 +152,7 @@ namespace FlowerMadness.Controllers
         [ProducesResponseType(403)]
         [ProducesResponseType(404)]
         [Authorize(AuthenticationSchemes = IdentityServerAuthenticationDefaults.AuthenticationScheme)]
-        public async Task<IActionResult> PutCustomer(CustomerDtoModel model)
+        public async Task<IActionResult> PutCustomer([FromBody]CustomerDtoModel model)
         {
             var customer = await GetCustomerAsync();
             if (customer.Orders.Any(x => x.Status != (byte) OrderStatus.InProcess))
@@ -195,11 +195,11 @@ namespace FlowerMadness.Controllers
             return customer;
         }
 
-        private async Task<Order> GetOrderAsync()
+        private async Task<Order> GetOrderAsync([FromQuery] OrderStatus? status)
         {
             var customer = await GetCustomerAsync();
 
-            var order = _unitOfWork.Orders.GetCurrentOrderForCustomer(customer.Id);
+            var order = _unitOfWork.Orders.GetCurrentOrderForCustomer(customer.Id, status);
             if (order == null)
             {
                 order = _mapper.Map(customer, new Order());

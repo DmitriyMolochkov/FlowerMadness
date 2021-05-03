@@ -7,8 +7,11 @@ namespace DAL.Repositories.Interfaces
 {
     public interface IOrdersRepository : IRepository<Order>
     {
-        Order GetCurrentOrderForCustomer(int id);
-        List<Order> GetOrderHistory(string userId);
+        Order GetCurrentOrderForCustomer(int id, OrderStatus? status);
+        List<Order> GetAllOrders(OrderStatus? status);
+        List<Order> GetOrderHistory(string userId, OrderStatus? status);
+        List<Order> GetOrderHistory(int customerId, OrderStatus? status);
+        Order GetOrderById(int id);
     }
 
     public interface IOrderDetailsRepository : IRepository<OrderDetail>

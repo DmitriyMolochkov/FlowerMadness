@@ -16,9 +16,19 @@ namespace DAL.Repositories
         public ProductRepository(DbContext context) : base(context)
         { }
 
-        public async Task<List<Product>> GetAllWithFiltersAsync()
+        public async Task<List<Product>> GetAllWithFiltersAsync(int? productCategoryId, decimal? maxPrice, decimal? minPrice, string search)
         {
-            return await _appContext.Products/*.Include(x => x.Parent).Include(x => x.Children)*/.ToListAsync();
+            search = search?.ToUpper();
+            
+            return await _appContext.Products
+                .Where(
+                    x => 
+                        (productCategoryId == null || x.ProductCategoryId == productCategoryId) &&
+                        (maxPrice == null || x.SellingPrice <= maxPrice) &&
+                        (minPrice == null || x.SellingPrice >= minPrice) &&
+                        (search == null || x.Name.ToUpper().Contains(search))
+                    )
+                .ToListAsync();
         }
 
         public async Task<Product> GetByIdAsync(int id)
@@ -39,6 +49,40 @@ namespace DAL.Repositories
         public async Task DeleteAsync(int id)
         {
              _appContext.Products.Remove(await GetByIdAsync(id));
+        }
+
+    }
+
+    public class ProductCategoryRepository : Repository<ProductCategory>, IProductCategoryRepository
+    {
+        private ApplicationDbContext _appContext => (ApplicationDbContext)_context;
+
+        public ProductCategoryRepository(DbContext context) : base(context)
+        { }
+
+        public async Task<List<ProductCategory>> GetAllAsync()
+        {
+            return await _appContext.ProductCategories.Include(x => x.Products).ToListAsync();
+        }
+
+        public async Task<ProductCategory> GetByIdAsync(int id)
+        {
+            return await _appContext.ProductCategories.Where(x => x.Id == id).FirstOrDefaultAsync();
+        }
+
+        public async Task<ProductCategory> PostAsync(ProductCategory product)
+        {
+            return (await _appContext.ProductCategories.AddAsync(product)).Entity;
+        }
+
+        public ProductCategory Put(ProductCategory product)
+        {
+            return _appContext.ProductCategories.Update(product).Entity;
+        }
+
+        public async Task DeleteAsync(int id)
+        {
+            _appContext.ProductCategories.Remove(await GetByIdAsync(id));
         }
 
     }

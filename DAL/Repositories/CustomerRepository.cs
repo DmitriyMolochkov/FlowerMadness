@@ -29,7 +29,7 @@ namespace DAL.Repositories
                 .Include(c => c.Orders).ThenInclude(o => o.OrderDetails).ThenInclude(d => d.Product)
                 .Include(c => c.ApplicationUser)
                 //.Include(c => c.Orders).ThenInclude(o => o.Cashier)
-                .OrderBy(c => c.Name)
+                .OrderByDescending(c => c.CreatedDate)
                 .ToList();
         }
 
@@ -38,10 +38,9 @@ namespace DAL.Repositories
             var result =  _appContext.Customers
                 .Include(c => c.Orders).ThenInclude(o => o.OrderDetails).ThenInclude(d => d.Product)
                 .Include(c => c.ApplicationUser)
-                .OrderBy(c => c.Name)
                 .Where(c => c.ApplicationUserId == userId)
                 .ToList()
-                .OrderBy(x => x.DateCreated)
+                .OrderByDescending(x => x.DateCreated)
                 .LastOrDefault();
 
             return result;
@@ -49,7 +48,12 @@ namespace DAL.Repositories
 
         public Task<Customer> GetByIdAsync(int id)
         {
-            return _appContext.Customers.Where(x => x.Id == id)/*.Include(x => x.Parent).Include(x => x.Children)*/.FirstOrDefaultAsync();
+            return _appContext.Customers.Where(x => x.Id == id)
+                .Include(x => x.Orders)
+                .ThenInclude(x => x.OrderDetails)
+                .ThenInclude(x => x.Product)
+                .Include(c => c.ApplicationUser)
+                .FirstOrDefaultAsync();
         }
 
         public async Task<Customer> PostAsync(Customer customer)

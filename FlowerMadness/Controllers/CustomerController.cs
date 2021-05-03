@@ -8,79 +8,100 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using DAL.Models;
+using IdentityServer4.AccessTokenValidation;
+using Microsoft.AspNetCore.Authorization;
 
 namespace FlowerMadness.Controllers
 {
-    //[Route("api/[controller]")]
-    //public class CustomerController : ControllerBase
-    //{
-    //    private readonly IMapper _mapper;
-    //    private readonly IUnitOfWork _unitOfWork;
-    //    private readonly ILogger _logger;
-    //    private readonly IEmailSender _emailSender;
+    [Route("api/[controller]")]
+    [Authorize(AuthenticationSchemes = IdentityServerAuthenticationDefaults.AuthenticationScheme, Roles = "manager, administrator")]
+    public class CustomerController : ControllerBase
+    {
+        private readonly IMapper _mapper;
+        private readonly IUnitOfWork _unitOfWork;
+        private readonly ILogger _logger;
+        private readonly IEmailSender _emailSender;
 
 
-    //    public CustomerController(IMapper mapper, IUnitOfWork unitOfWork, ILogger<CustomerController> logger, IEmailSender emailSender)
-    //    {
-    //        _mapper = mapper;
-    //        _unitOfWork = unitOfWork;
-    //        _logger = logger;
-    //        _emailSender = emailSender;
-    //    }
+        public CustomerController(IMapper mapper, IUnitOfWork unitOfWork, ILogger<CustomerController> logger, IEmailSender emailSender)
+        {
+            _mapper = mapper;
+            _unitOfWork = unitOfWork;
+            _logger = logger;
+            _emailSender = emailSender;
+        }
 
-    //    // GET: api/values
-    //    [HttpGet]
-    //    public IActionResult Get()
-    //    {
-    //        var allCustomers = _unitOfWork.Customers.GetAllCustomersData();
-    //        return Ok(_mapper.Map<IEnumerable<CustomerViewModel>>(allCustomers));
-    //    }
+        [HttpGet]
+        [ProducesResponseType(200, Type = typeof(List<CustomerViewModel>))]
+        [ProducesResponseType(403)]
+        [ProducesResponseType(404)]
+        public IActionResult GetAllCustomers()
+        {
+            var allCustomers = _unitOfWork.Customers.GetAllCustomersData();
+            return Ok(_mapper.Map<List<CustomerViewModel>>(allCustomers));
+        }
 
-    //    [HttpGet("throw")]
-    //    public IEnumerable<CustomerViewModel> Throw()
-    //    {
-    //        throw new InvalidOperationException("This is a test exception: " + DateTime.Now);
-    //    }
+        [HttpGet("{id}")]
+        [ProducesResponseType(200, Type = typeof(CustomerViewModel))]
+        [ProducesResponseType(403)]
+        [ProducesResponseType(404)]
+        public async Task<IActionResult> GetCustomerById(int id)
+        {
+            var customer = await _unitOfWork.Customers.GetByIdAsync(id);
+            if (customer == null)
+                return NotFound();
+            return Ok(_mapper.Map<CustomerViewModel>(customer));
+        }
 
-    //    [HttpGet("email")]
-    //    public async Task<string> Email()
-    //    {
-    //        string recepientName = "QickApp Tester"; //         <===== Put the recepient's name here
-    //        string recepientEmail = "test@ebenmonney.com"; //   <===== Put the recepient's email here
+        [HttpGet("Orders")]
+        [ProducesResponseType(200, Type = typeof(List<OrderViewModel>))]
+        [ProducesResponseType(403)]
+        [ProducesResponseType(404)]
+        public IActionResult GetAllOrders([FromQuery] OrderStatus? status)
+        {
+            var allOrders = _unitOfWork.Orders.GetAllOrders(status);
+            return Ok(_mapper.Map<List<OrderViewModel>>(allOrders));
+        }
 
-    //        string message = EmailTemplates.GetTestEmail(recepientName, DateTime.UtcNow);
+        [HttpGet("Orders/{id}")]
+        [ProducesResponseType(200, Type = typeof(OrderViewModel))]
+        [ProducesResponseType(403)]
+        [ProducesResponseType(404)]
+        public IActionResult GetOrderById(int id)
+        {
+            var order = _unitOfWork.Orders.GetOrderById(id);
+            if (order == null)
+                return NotFound();
+            
+            return Ok(_mapper.Map<OrderViewModel>(order));
+        }
 
-    //        (bool success, string errorMsg) = await _emailSender.SendEmailAsync(recepientName, recepientEmail, "Test Email from FlowerMadness", message);
+        [HttpGet("{id}/OrderHistory")]
+        [ProducesResponseType(200, Type = typeof(List<OrderViewModel>))]
+        [ProducesResponseType(403)]
+        [ProducesResponseType(404)]
+        public IActionResult GetOrderHistoryByCustomerId(int id, [FromQuery] OrderStatus? status)
+        {
+            var orders = _unitOfWork.Orders.GetOrderHistory(id, status);
+            return Ok(_mapper.Map<List<OrderViewModel>>(orders));
+        }
 
-    //        if (success)
-    //            return "Success";
+        [HttpPut("Orders/{id}")]
+        [ProducesResponseType(200, Type = typeof(OrderViewModel))]
+        [ProducesResponseType(403)]
+        [ProducesResponseType(404)]
+        public IActionResult ChangeOrderStatus(int id, [FromQuery] OrderStatus status)
+        {
+            var order = _unitOfWork.Orders.GetOrderById(id);
+            if (order == null)
+                return NotFound();
 
-    //        return "Error: " + errorMsg;
-    //    }
-
-    //    // GET api/values/5
-    //    [HttpGet("{id}")]
-    //    public string Get(int id)
-    //    {
-    //        return "value: " + id;
-    //    }
-
-    //    // POST api/values
-    //    [HttpPost]
-    //    public void Post([FromBody] string value)
-    //    {
-    //    }
-        
-    //    // PUT api/values/5
-    //    [HttpPut("{id}")]
-    //    public void Put(int id, [FromBody] string value)
-    //    {
-    //    }
-
-    //    // DELETE api/values/5
-    //    [HttpDelete("{id}")]
-    //    public void Delete(int id)
-    //    {
-    //    }
-    //}
+            order.Status = (byte) status;
+            _unitOfWork.Orders.Update(order);
+            _unitOfWork.SaveChanges();
+            
+            return Ok(_mapper.Map<OrderViewModel>(order));
+        }
+    }
 }

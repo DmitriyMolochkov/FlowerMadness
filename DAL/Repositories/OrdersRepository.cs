@@ -16,9 +16,10 @@ namespace DAL.Repositories
         
         private ApplicationDbContext _appContext => (ApplicationDbContext)_context;
 
-        public Order GetCurrentOrderForCustomer(int id)
+        public Order GetCurrentOrderForCustomer(int id, OrderStatus? status)
         {
             return _appContext.Orders
+                .Where(x => status == null || x.Status == (byte)status)
                 .Include(x => x.OrderDetails).ThenInclude(x => x.Product)
                 .Include(x => x.Customer)
                 .Where(x => x.CustomerId == id && x.Status == (byte)OrderStatus.InProcess)
@@ -27,12 +28,44 @@ namespace DAL.Repositories
                 .LastOrDefault();
         }
 
-        public List<Order> GetOrderHistory(string userId)
+        public List<Order> GetAllOrders(OrderStatus? status)
         {
             return _appContext.Orders
+                .Where(x => status == null || x.Status == (byte)status)
+                .Include(x => x.OrderDetails).ThenInclude(x => x.Product)
+                .Include(x => x.Customer)
+                .OrderBy(x => x.DateCreated)
+                .ToList();
+        }
+
+        public Order GetOrderById(int id)
+        {
+            return _appContext.Orders
+                .Where(x => x.Id == id)
+                .Include(x => x.OrderDetails).ThenInclude(x => x.Product)
+                .Include(x => x.Customer)
+                .OrderBy(x => x.DateCreated)
+                .FirstOrDefault();
+        }
+
+        public List<Order> GetOrderHistory(string userId, OrderStatus? status)
+        {
+            return _appContext.Orders
+                .Where(x => status == null || x.Status == (byte)status)
                 .Include(x => x.OrderDetails).ThenInclude(x => x.Product)
                 .Include(x => x.Customer)
                 .Where(x => x.Customer.ApplicationUserId == userId)
+                .OrderBy(x => x.DateCreated)
+                .ToList();
+        }
+
+        public List<Order> GetOrderHistory(int customerId, OrderStatus? status)
+        {
+            return _appContext.Orders
+                .Where(x => status == null || x.Status == (byte)status)
+                .Include(x => x.OrderDetails).ThenInclude(x => x.Product)
+                .Include(x => x.Customer)
+                .Where(x => x.CustomerId == customerId)
                 .OrderBy(x => x.DateCreated)
                 .ToList();
         }

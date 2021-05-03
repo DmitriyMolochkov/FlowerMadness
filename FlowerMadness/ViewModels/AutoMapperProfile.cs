@@ -68,14 +68,19 @@ namespace FlowerMadness.ViewModels
                 .ForMember(x => x.ProductCategoryName, map => map.MapFrom(y => y.ProductCategory.Name))
                 .ReverseMap();
 
+            CreateMap<ProductDtoModel, Product>();
+
             CreateMap<Product, ProductForCustomerViewModel>()
                 .ForMember(x => x.ProductCategoryName, map => map.MapFrom(y => y.ProductCategory.Name))
                 ;
-
+            
             CreateMap<Order, OrderViewModel>()
                 .ForMember(x => x.Status, map => map.MapFrom(y => (OrderStatus) y.Status));
-                //.ReverseMap();
+            //.ReverseMap();
+            
+            CreateMap<ProductCategoryDtoModel, ProductCategory>();
 
+            CreateMap<ProductCategory, ProductCategoryViewModel>();
 
             CreateMap<ApplicationUser, Customer>()
                 .ForMember(x => x.Id, map => map.Ignore())

@@ -14,6 +14,7 @@ namespace DAL
 
         ICustomerRepository _customers;
         IProductRepository _products;
+        IProductCategoryRepository _productCategory;
         IOrdersRepository _orders;
         IOrderDetailsRepository _orderDetails;
 
@@ -41,6 +42,17 @@ namespace DAL
                     _products = new ProductRepository(_context);
 
                 return _products;
+            }
+        }
+
+        public IProductCategoryRepository ProductCategories
+        {
+            get
+            {
+                if (_productCategory == null)
+                    _productCategory = new ProductCategoryRepository(_context);
+
+                return _productCategory;
             }
         }
 

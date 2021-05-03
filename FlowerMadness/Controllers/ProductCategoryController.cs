@@ -1,7 +1,4 @@
-﻿using AutoMapper;
-using DAL;
-using DAL.Core;
-using DAL.Core.Interfaces;
+﻿using DAL.Core.Interfaces;
 using DAL.Models;
 using FlowerMadness.Authorization;
 using FlowerMadness.Helpers;
@@ -15,11 +12,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
+using DAL;
 
 namespace FlowerMadness.Controllers
 {
     [Route("api/[controller]")]
-    public class ProductController : ControllerBase
+    public class ProductCategoryController : ControllerBase
     {
         private readonly IMapper _mapper;
         private readonly IUnitOfWork _unitOfWork;
@@ -27,7 +26,7 @@ namespace FlowerMadness.Controllers
         private readonly IEmailSender _emailSender;
         private readonly IAuthorizationService _authorizationService;
 
-        public ProductController(IMapper mapper, IUnitOfWork unitOfWork, ILogger<ProductController> logger, IEmailSender emailSender,
+        public ProductCategoryController(IMapper mapper, IUnitOfWork unitOfWork, ILogger<ProductCategoryController> logger, IEmailSender emailSender,
             IAuthorizationService authorizationService)
         {
             _mapper = mapper;
@@ -38,64 +37,64 @@ namespace FlowerMadness.Controllers
         }
 
         [HttpGet]
-        [ProducesResponseType(200, Type = typeof(List<ProductViewModel>))]
-        public async Task<IActionResult> Get(int? productCategoryId, decimal? maxPrice, decimal? minPrice, string search)
+        [ProducesResponseType(200, Type = typeof(List<ProductCategoryViewModel>))]
+        public async Task<IActionResult> Get()
         {
-            var products = await _unitOfWork.Products.GetAllWithFiltersAsync(productCategoryId, maxPrice,minPrice, search);
-            return Ok(_mapper.Map<List<ProductViewModel>>(products));
+            var categories = await _unitOfWork.ProductCategories.GetAllAsync();
+            return Ok(_mapper.Map<List<ProductCategoryViewModel>>(categories));
         }
 
         [HttpGet("{id}")]
-        [ProducesResponseType(200, Type = typeof(ProductViewModel))]
+        [ProducesResponseType(200, Type = typeof(ProductCategoryViewModel))]
         [ProducesResponseType(404)]
         public async Task<IActionResult> GetById(int id)
         {
-            var product = await _unitOfWork.Products.GetByIdAsync(id);
+            var category = await _unitOfWork.ProductCategories.GetByIdAsync(id);
 
-            if (product != null)
-                return Ok(_mapper.Map<ProductViewModel>(product));
+            if (category != null)
+                return Ok(_mapper.Map<ProductCategoryViewModel>(category));
             else
                 return NotFound(id);
         }
 
         [HttpPost]
-        [ProducesResponseType(200, Type = typeof(ProductViewModel))]
+        [ProducesResponseType(200, Type = typeof(ProductCategoryViewModel))]
         [ProducesResponseType(403)]
         [Authorize(AuthenticationSchemes = IdentityServerAuthenticationDefaults.AuthenticationScheme, Roles = "manager, administrator")]
-        public async Task<IActionResult> Post([FromBody]ProductDtoModel model)
+        public async Task<IActionResult> Post([FromBody] ProductCategoryDtoModel model)
         {
             //if (!(await _authorizationService.AuthorizeAsync(this.User, new string[] { }, Authorization.Policies.AssignAllowedRolesPolicy)).Succeeded)
             //    return new ChallengeResult();
 
-            var product = _mapper.Map<Product>(model);
-            await _unitOfWork.Products.PostAsync(product);
-            product.DateCreated = DateTime.UtcNow;
-            product.DateModified = DateTime.UtcNow;
+            var category = _mapper.Map<ProductCategory>(model);
+            await _unitOfWork.ProductCategories.PostAsync(category);
+            category.DateCreated = DateTime.UtcNow;
+            category.DateModified = DateTime.UtcNow;
             _unitOfWork.SaveChanges();
-            return Ok(_mapper.Map<ProductViewModel>(product));
-            
+            return Ok(_mapper.Map<ProductCategoryViewModel>(category));
+
         }
 
         [HttpPut("{id}")]
-        [ProducesResponseType(200, Type = typeof(ProductViewModel))]
+        [ProducesResponseType(200, Type = typeof(ProductCategoryViewModel))]
         [ProducesResponseType(403)]
         [ProducesResponseType(404)]
         [Authorize(AuthenticationSchemes = IdentityServerAuthenticationDefaults.AuthenticationScheme, Roles = "manager, administrator")]
-        public async Task<IActionResult> Put(int id, [FromBody] ProductDtoModel model)
+        public async Task<IActionResult> Put(int id, [FromBody] ProductCategoryDtoModel model)
         {
             //if (!(await _authorizationService.AuthorizeAsync(this.User, new string[] { }, Authorization.Policies.AssignAllowedRolesPolicy)).Succeeded)
             //    return new ChallengeResult();
-            var product = await _unitOfWork.Products.GetByIdAsync(id);
+            var category = await _unitOfWork.ProductCategories.GetByIdAsync(id);
 
-            if (product == null)
+            if (category == null)
                 return NotFound(id);
-                
-            product = _mapper.Map(model, product);
-            _unitOfWork.Products.Put(product);
-            product.DateModified = DateTime.UtcNow;
+
+            category = _mapper.Map(model, category);
+            _unitOfWork.ProductCategories.Put(category);
+            category.DateModified = DateTime.UtcNow;
             _unitOfWork.SaveChanges();
-            return Ok(_mapper.Map<ProductViewModel>(product));
-           
+            return Ok(_mapper.Map<ProductCategoryViewModel>(category));
+
         }
 
         [HttpDelete("{id}")]
@@ -107,12 +106,12 @@ namespace FlowerMadness.Controllers
             //if (!(await _authorizationService.AuthorizeAsync(this.User, new string[] { }, Authorization.Policies.AssignAllowedRolesPolicy)).Succeeded)
             //    return new ChallengeResult();
 
-            var product = await _unitOfWork.Products.GetByIdAsync(id);
+            var category = await _unitOfWork.ProductCategories.GetByIdAsync(id);
 
-            if (product == null)
+            if (category == null)
                 return Ok();
-            
-            await _unitOfWork.Products.DeleteAsync(id);
+
+            await _unitOfWork.ProductCategories.DeleteAsync(id);
             _unitOfWork.SaveChanges();
             return Ok();
         }
