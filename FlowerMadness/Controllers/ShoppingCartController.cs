@@ -78,27 +78,23 @@ namespace FlowerMadness.Controllers
             var orderDetail = _unitOfWork.OrderDetails.GetCurrentOrderDetailForOrder(order.Id, model.ProductId);
             if (orderDetail == null)
             {
-                if (model.Quantity > 0)
-                {
-                    orderDetail = _mapper.Map(model, new OrderDetail());
-                   
-                    orderDetail.UnitPrice = product.SellingPrice;
-                    order.OrderDetails.Add(orderDetail);
-                }
+                orderDetail = _mapper.Map(model, new OrderDetail());
+                order.OrderDetails.Add(orderDetail);
+            }
+
+            orderDetail.UnitPrice = product.SellingPrice;
+            orderDetail.Quantity = model.Quantity;
+            order.DateModified = DateTime.UtcNow;
+            
+            if (orderDetail.Quantity <= 0)
+            {
+                order.OrderDetails.Remove(orderDetail);
             }
             else
             {
-                orderDetail.UnitPrice = product.SellingPrice;
-                orderDetail.Quantity += model.Quantity;
-                order.DateModified = DateTime.UtcNow;
-                
-                if (orderDetail.Quantity <= 0)
-                {
-                    order.OrderDetails.Remove(orderDetail);
-                }
+                _unitOfWork.Orders.Update(order);
             }
-
-            _unitOfWork.Orders.Update(order);
+            
             _unitOfWork.SaveChanges();
             
             return CreatedAtAction("ChangeProductCount", _mapper.Map<OrderViewModel>(order));
