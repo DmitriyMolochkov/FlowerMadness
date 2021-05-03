@@ -419,90 +419,90 @@ namespace FlowerMadness.Controllers
             return Ok(_mapper.Map<List<RoleViewModel>>(roles));
         }
 
-        [HttpPut("roles/{id}")]
-        //[Authorize(Authorization.Policies.ManageAllRolesPolicy)]
-        [ProducesResponseType(204)]
-        [ProducesResponseType(400)]
-        [ProducesResponseType(404)]
-        public async Task<IActionResult> UpdateRole(string id, [FromBody] RoleViewModel role)
-        {
-            if (ModelState.IsValid)
-            {
-                if (role == null)
-                    return BadRequest($"{nameof(role)} cannot be null");
+        //[HttpPut("roles/{id}")]
+        ////[Authorize(Authorization.Policies.ManageAllRolesPolicy)]
+        //[ProducesResponseType(204)]
+        //[ProducesResponseType(400)]
+        //[ProducesResponseType(404)]
+        //public async Task<IActionResult> UpdateRole(string id, [FromBody] RoleViewModel role)
+        //{
+        //    if (ModelState.IsValid)
+        //    {
+        //        if (role == null)
+        //            return BadRequest($"{nameof(role)} cannot be null");
 
-                if (!string.IsNullOrWhiteSpace(role.Id) && id != role.Id)
-                    return BadRequest("Conflicting role id in parameter and model data");
+        //        if (!string.IsNullOrWhiteSpace(role.Id) && id != role.Id)
+        //            return BadRequest("Conflicting role id in parameter and model data");
                 
-                ApplicationRole appRole = await _accountManager.GetRoleByIdAsync(id);
+        //        ApplicationRole appRole = await _accountManager.GetRoleByIdAsync(id);
 
-                if (appRole == null)
-                    return NotFound(id);
+        //        if (appRole == null)
+        //            return NotFound(id);
 
-                _mapper.Map<RoleViewModel, ApplicationRole>(role, appRole);
+        //        _mapper.Map<RoleViewModel, ApplicationRole>(role, appRole);
 
-                var result = await _accountManager.UpdateRoleAsync(appRole, new string[] { }/*role.Permissions?.Select(p => p.Value).ToArray()*/);
-                if (result.Succeeded)
-                    return NoContent();
+        //        var result = await _accountManager.UpdateRoleAsync(appRole, new string[] { }/*role.Permissions?.Select(p => p.Value).ToArray()*/);
+        //        if (result.Succeeded)
+        //            return NoContent();
 
-                AddError(result.Errors);
+        //        AddError(result.Errors);
 
-            }
+        //    }
 
-            return BadRequest(ModelState);
-        }
+        //    return BadRequest(ModelState);
+        //}
 
-        [HttpPost("roles")]
-        //[Authorize(Authorization.Policies.ManageAllRolesPolicy)]
-        [ProducesResponseType(201, Type = typeof(RoleViewModel))]
-        [ProducesResponseType(400)]
-        public async Task<IActionResult> CreateRole([FromBody] RoleViewModel role)
-        {
-            if (ModelState.IsValid)
-            {
-                if (role == null)
-                    return BadRequest($"{nameof(role)} cannot be null");
+        //[HttpPost("roles")]
+        ////[Authorize(Authorization.Policies.ManageAllRolesPolicy)]
+        //[ProducesResponseType(201, Type = typeof(RoleViewModel))]
+        //[ProducesResponseType(400)]
+        //public async Task<IActionResult> CreateRole([FromBody] RoleViewModel role)
+        //{
+        //    if (ModelState.IsValid)
+        //    {
+        //        if (role == null)
+        //            return BadRequest($"{nameof(role)} cannot be null");
 
-                ApplicationRole appRole = _mapper.Map<ApplicationRole>(role);
+        //        ApplicationRole appRole = _mapper.Map<ApplicationRole>(role);
 
-                var result = await _accountManager.CreateRoleAsync(appRole, new string[]{}/*role.Permissions?.Select(p => p.Value).ToArray()*/);
-                if (result.Succeeded)
-                {
-                    RoleViewModel roleVM = await GetRoleViewModelHelper(appRole.Name);
-                    return CreatedAtAction(GetRoleByIdActionName, new { id = roleVM.Id }, roleVM);
-                }
+        //        var result = await _accountManager.CreateRoleAsync(appRole, new string[]{}/*role.Permissions?.Select(p => p.Value).ToArray()*/);
+        //        if (result.Succeeded)
+        //        {
+        //            RoleViewModel roleVM = await GetRoleViewModelHelper(appRole.Name);
+        //            return CreatedAtAction(GetRoleByIdActionName, new { id = roleVM.Id }, roleVM);
+        //        }
 
-                AddError(result.Errors);
-            }
+        //        AddError(result.Errors);
+        //    }
 
-            return BadRequest(ModelState);
-        }
+        //    return BadRequest(ModelState);
+        //}
 
-        [HttpDelete("roles/{id}")]
-        //[Authorize(Authorization.Policies.ManageAllRolesPolicy)]
-        [ProducesResponseType(200, Type = typeof(RoleViewModel))]
-        [ProducesResponseType(400)]
-        [ProducesResponseType(404)]
-        public async Task<IActionResult> DeleteRole(string id)
-        {
-            ApplicationRole appRole = await _accountManager.GetRoleByIdAsync(id);
+        //[HttpDelete("roles/{id}")]
+        ////[Authorize(Authorization.Policies.ManageAllRolesPolicy)]
+        //[ProducesResponseType(200, Type = typeof(RoleViewModel))]
+        //[ProducesResponseType(400)]
+        //[ProducesResponseType(404)]
+        //public async Task<IActionResult> DeleteRole(string id)
+        //{
+        //    ApplicationRole appRole = await _accountManager.GetRoleByIdAsync(id);
 
-            if (appRole == null)
-                return NotFound(id);
+        //    if (appRole == null)
+        //        return NotFound(id);
 
-            if (!await _accountManager.TestCanDeleteRoleAsync(id))
-                return BadRequest("Role cannot be deleted. Remove all users from this role and try again");
-
-
-            RoleViewModel roleVM = await GetRoleViewModelHelper(appRole.Name);
-
-            var result = await _accountManager.DeleteRoleAsync(appRole);
-            if (!result.Succeeded)
-                throw new Exception("The following errors occurred whilst deleting role: " + string.Join(", ", result.Errors));
+        //    if (!await _accountManager.TestCanDeleteRoleAsync(id))
+        //        return BadRequest("Role cannot be deleted. Remove all users from this role and try again");
 
 
-            return Ok(roleVM);
-        }
+        //    RoleViewModel roleVM = await GetRoleViewModelHelper(appRole.Name);
+
+        //    var result = await _accountManager.DeleteRoleAsync(appRole);
+        //    if (!result.Succeeded)
+        //        throw new Exception("The following errors occurred whilst deleting role: " + string.Join(", ", result.Errors));
+
+
+        //    return Ok(roleVM);
+        //}
 
         //[HttpGet("permissions")]
         ////[Authorize(Authorization.Policies.ViewAllRolesPolicy)]
