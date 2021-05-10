@@ -27,6 +27,7 @@ namespace DAL.Models
         Confirmed,
         PaidUp,
         Sent,
-        Delivered
+        Delivered,
+        Canceled
     }
 }
