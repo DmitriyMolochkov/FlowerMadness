@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
@@ -11,7 +12,11 @@ namespace DAL.Models
     {
         public int Id { get; set; }
         public string Name { get; set; }
+        [MaxLength(500)]
+        [Column(TypeName = "TEXT")]
         public string Description { get; set; }
+        [MaxLength(65535)]
+        [Column(TypeName = "TEXT")]
         public string Icon { get; set; }
         public decimal BuyingPrice { get; set; }
         public decimal SellingPrice { get; set; }
